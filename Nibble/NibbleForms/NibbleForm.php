@@ -64,34 +64,33 @@ class NibbleForm
     /**
      * @param string $action
      * @param string $submit_value
+     * @param bool $html5
      * @param string $method
-     * @param boolean $sticky
+     * @param bool $sticky
      * @param string $message_type
      * @param string $format
-     * @param string $multiple_errors
-     *
-     * @return NibbleForm
+     * @param bool|string $multiple_errors
      */
     public function __construct(
-        $action,
-        $submit_value,
-        $html5,
-        $method,
-        $sticky,
-        $message_type,
-        $format,
-        $multiple_errors
+        $action = '',
+        $submit_value = 'Submit',
+        $html5 = true,
+        $method = 'post',
+        $sticky = true,
+        $message_type = 'list',
+        $format = 'list',
+        $multiple_errors = false
     ) {
-        $this->fields = new \stdClass();
         $this->action = $action;
-        $this->method = $method;
-        $this->html5 = $html5;
         $this->submit_value = $submit_value;
+        $this->html5 = $html5;
+        $this->method = $method;
         $this->sticky = $sticky;
-        $this->format = $format;
         $this->message_type = $message_type;
+        $this->format = $format;
         $this->multiple_errors = $multiple_errors;
 
+        $this->fields = new \stdClass();
         $this->filters = [];
         $this->validators = [];
     }
