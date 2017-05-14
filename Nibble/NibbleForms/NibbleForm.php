@@ -416,8 +416,9 @@ FORM;
     {
         $this->setToken();
         $fields = array();
+
         foreach ($this->fields as $name => $field) {
-            if (get_class($field) == 'Nibble\\NibbleForms\\Field\\Hidden') {
+            if ($field instanceof Field\Hidden) {
                 if (isset($this->data[$name])) {
                     $field_data = $field->returnField($this->name, $name, $this->data[$name]);
                 } else {
@@ -490,7 +491,7 @@ FORM;
     {
         $enctype = '';
         foreach ($this->fields as $field) {
-            if (get_class($field) == 'File') {
+            if ($field instanceof Field\File) {
                 $enctype = 'enctype="multipart/form-data"';
             }
         }
@@ -546,7 +547,10 @@ FORM;
         if (!$this->checkField($name)) {
             return false;
         }
+
+        /** @var Field $field */
         $field = $this->fields->$name;
+
         if (isset($this->data[$name])) {
             $field = $field->returnField($this->name, $name, $this->data[$name]);
         } else {
