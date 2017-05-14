@@ -5,17 +5,16 @@ use Nibble\NibbleForms\Field;
 
 class File extends Field
 {
-
-    private $label;
-    private $type;
-    private $required;
-    private $max_size;
-    public $error = array();
-    private $height;
-    private $width;
-    private $min_height;
-    private $min_width;
-    private $mime_types = array(
+    protected $attributes;
+    protected $label;
+    protected $type;
+    protected $required;
+    protected $max_size;
+    protected $height;
+    protected $width;
+    protected $min_height;
+    protected $min_width;
+    protected $mime_types = array(
         'image' => array(
             'image/gif', 'image/gi_', 'image/png', 'application/png', 'application/x-png',
             'image/jp_', 'application/jpg', 'application/x-jpg', 'image/pjpeg', 'image/jpeg'
@@ -39,7 +38,7 @@ class File extends Field
             'application/gzip', 'application/x-gzip', 'application/x-gunzip', 'application/gzipped'
         )
     );
-    private $error_types = array(
+    protected $error_types = array(
         'image' => 'must be an image, e.g example.jpg or example.gif',
         'archive' => 'must be and archive, e.g example.zip or example.tar',
         'document' => 'must be a document, e.g example.doc or example.pdf',
@@ -47,15 +46,26 @@ class File extends Field
         'custom' => 'is invalid'
     );
 
-    public function __construct($label, $type = 'all', $required = true, $max_size = 2097152, $width = 1600, $height = 1600, $min_width = 0, $min_height = 0)
+    public $error = array();
+
+    /**
+     * File constructor.
+     * @param $id
+     * @param array $attributes
+     */
+    public function __construct($label, $attributes)
     {
+        $attributes = (array)$attributes;
+
         $this->label = $label;
-        $this->required = $required;
-        $this->max_size = $max_size;
-        $this->width = $width;
-        $this->height = $height;
-        $this->min_width = $min_width;
-        $this->min_height = $min_height;
+        $this->required = $attributes['required'] ?? false;
+        $this->max_size = $attributes['max_size'] ?? 10 * 1024 * 1024;
+        $this->width = $attributes['width'] ?? 1600;
+        $this->height = $attributes['height'] ?? 1600;
+        $this->min_width = $attributes['min_width'] ?? 0;
+        $this->min_height = $attributes['min_height'] ?? 0;
+
+        $type = $attributes['type'] ?? 'all';
         if (is_array($type)) {
             $this->mime_types = $type;
             $this->type = 'custom';
@@ -73,6 +83,9 @@ class File extends Field
                 unset($temp);
             }
         }
+
+        unset($attributes['required'], $attributes['max_size'], $attributes['width'], $attributes['height'], $attributes['min_width'], $attributes['min_height']);
+        $this->attributes = $attributes;
     }
 
     public function returnField($form_name, $name, $value = '')

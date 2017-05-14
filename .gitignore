@@ -1,0 +1,8 @@
+# Junk/cache files.
+*Thumbs.db
+tmp/cache/*---*
+app/models/Proxy/*.php
+*.DS_Store
+*.apdisk
+.vagrant
+.idea

@@ -27,49 +27,48 @@ namespace Nibble\NibbleForms;
 
 class NibbleForm
 {
-
     protected $action, $method, $submit_value, $fields, $sticky, $format, $message_type, $multiple_errors, $html5;
     protected $valid = true;
     protected $name = 'nibble_form';
     protected $messages = array();
     protected $data = array();
-    protected $formats
-        = array(
-            'list'  => array(
-                'open_form'       => '<ul>',
-                'close_form'      => '</ul>',
-                'open_form_body'  => '',
-                'close_form_body' => '',
-                'open_field'      => '',
-                'close_field'     => '',
-                'open_html'       => "<li>\n",
-                'close_html'      => "</li>\n",
-                'open_submit'     => "<li>\n",
-                'close_submit'    => "</li>\n"
-            ),
-            'table' => array(
-                'open_form'       => '<table>',
-                'close_form'      => '</table>',
-                'open_form_body'  => '<tbody>',
-                'close_form_body' => '</tbody>',
-                'open_field'      => "<tr>\n",
-                'close_field'     => "</tr>\n",
-                'open_html'       => "<td>\n",
-                'close_html'      => "</td>\n",
-                'open_submit'     => '<tfoot><tr><td>',
-                'close_submit'    => '</td></tr></tfoot>'
-            )
-        );
-    protected static $instance = array();
+    protected $formats = array(
+        'list' => array(
+            'open_form' => '<ul>',
+            'close_form' => '</ul>',
+            'open_form_body' => '',
+            'close_form_body' => '',
+            'open_field' => '',
+            'close_field' => '',
+            'open_html' => "<li>\n",
+            'close_html' => "</li>\n",
+            'open_submit' => "<li>\n",
+            'close_submit' => "</li>\n"
+        ),
+        'table' => array(
+            'open_form' => '<table>',
+            'close_form' => '</table>',
+            'open_form_body' => '<tbody>',
+            'close_form_body' => '</tbody>',
+            'open_field' => "<tr>\n",
+            'close_field' => "</tr>\n",
+            'open_html' => "<td>\n",
+            'close_html' => "</td>\n",
+            'open_submit' => '<tfoot><tr><td>',
+            'close_submit' => '</td></tr></tfoot>'
+        )
+    );
+    protected $filters;
+    protected $validators;
 
     /**
-     * @param string  $action
-     * @param string  $submit_value
-     * @param string  $method
+     * @param string $action
+     * @param string $submit_value
+     * @param string $method
      * @param boolean $sticky
-     * @param string  $message_type
-     * @param string  $format
-     * @param string  $multiple_errors
+     * @param string $message_type
+     * @param string $format
+     * @param string $multiple_errors
      *
      * @return NibbleForm
      */
@@ -92,86 +91,74 @@ class NibbleForm
         $this->format = $format;
         $this->message_type = $message_type;
         $this->multiple_errors = $multiple_errors;
-        spl_autoload_register(array($this, 'nibbleLoader'));
-    }
 
-    /**
-     * Singleton method
-     *
-     * @param string  $action
-     * @param string  $method
-     * @param boolean $sticky
-     * @param string  $submit_value
-     * @param string  $message_type
-     * @param string  $format
-     * @param string  $multiple_errors
-     *
-     * @return NibbleForm
-     */
-    public static function getInstance(
-        $name = '',
-        $action = '',
-        $html5 = true,
-        $method = 'post',
-        $submit_value = 'Submit',
-        $format = 'list',
-        $sticky = true,
-        $message_type = 'list',
-        $multiple_errors = false
-    ) {
-        if (!isset(self::$instance[$name])) {
-            self::$instance[$name]
-                = new NibbleForm($action, $submit_value, $html5, $method, $sticky, $message_type, $format, $multiple_errors);
-        }
-
-        return self::$instance[$name];
-    }
-
-    /**
-     * Autoloader for nibble forms
-     *
-     * @param string $class
-     */
-    public static function nibbleLoader($class)
-    {
-        $namespace = explode('\\', trim($class));
-        foreach ($namespace as $key => $value) {
-            if (empty($value)) {
-                unset($namespace[$key]);
-            }
-        }
-        $filepath = dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $namespace) . '.php';
-        if (file_exists($filepath)) {
-            require_once $filepath;
-        }
+        $this->filters = [];
+        $this->validators = [];
     }
 
     /**
      * Add a field to the form instance
      *
-     * @param string  $field_name
-     * @param string  $type
-     * @param array   $attributes
+     * @param string $field_name
+     * @param string $type
+     * @param array $attributes
      * @param boolean $overwrite
      *
      * @return boolean
      */
     public function addField($field_name, $type = 'text', array $attributes = array(), $overwrite = false)
     {
-        $namespace = "\\Nibble\\NibbleForms\\Field\\" . ucfirst($type);
+        $namespace_options = [
+            "\\Nibble\\NibbleForms\\Field\\" . ucfirst($type),
+        ];
+
+        foreach ($namespace_options as $namespace_option) {
+            if (class_exists($namespace_option)) {
+                $namespace = $namespace_option;
+                break;
+            }
+        }
+
+        if (!isset($namespace)) {
+            return false;
+        }
+
         if (isset($attributes['label'])) {
             $label = $attributes['label'];
         } else {
             $label = ucfirst(str_replace('_', ' ', $field_name));
         }
-        $field_name = Useful::slugify($field_name, '_');
+
+        $field_name = \Nibble\NibbleForms\Useful::slugify($field_name, '_');
+
         if (isset($this->fields->$field_name) && !$overwrite) {
             return false;
         }
+
+        if (!empty($attributes['filter'])) {
+            $this->filters[$field_name] = $attributes['filter'];
+            unset($attributes['filter']);
+        }
+        if (!empty($attributes['validator'])) {
+            $this->validators[$field_name] = $attributes['validator'];
+            unset($attributes['validator']);
+        }
+
         $this->fields->$field_name = new $namespace($label, $attributes);
         $this->fields->$field_name->setForm($this);
 
         return $this->fields->$field_name;
+    }
+
+    /**
+     * Retrieve an already added field.
+     *
+     * @param $key
+     * @return mixed
+     */
+    public function getField($key)
+    {
+        return $this->fields->$key;
     }
 
     /**
@@ -219,46 +206,68 @@ class NibbleForm
      *
      * @return boolean
      */
-    public function validate()
+    public function validate($request = null)
     {
-        $request = strtoupper($this->method) == 'POST' ? $_POST : $_GET;
+        if ($request === null) {
+            $request = strtoupper($this->method) == 'POST' ? $_POST : $_GET;
+        }
+
         if (isset($request[$this->name])) {
+            $this->data = $request[$this->name];
             $form_data = $request[$this->name];
         } else {
             $this->valid = false;
-
             return false;
         }
+
+        // Check CSRF token.
         if ((isset($_SESSION["nibble_forms"]["_crsf_token"], $_SESSION["nibble_forms"]["_crsf_token"][$this->name])
-            && $form_data["_crsf_token"] !== $_SESSION["nibble_forms"]["_crsf_token"][$this->name])
+                && $form_data["_crsf_token"] !== $_SESSION["nibble_forms"]["_crsf_token"][$this->name])
             || !isset($_SESSION["nibble_forms"]["_crsf_token"])
             || !isset($form_data["_crsf_token"])
         ) {
-            $this->setMessages('CRSF token invalid', 'CRSF error');
+            $title = preg_replace('/_/', ' ', ucfirst('CRSF error'));
+            if ($this->message_type == 'list') {
+                $this->messages[] = array('title' => $title, 'message' => ucfirst('CRSF token invalid'));
+            }
+
             $this->valid = false;
         }
-        $_SESSION["nibble_forms"]["_crsf_token"] = array();
-        if ($this->sticky) {
-            $this->addData($form_data);
-        }
-        foreach ($this->fields as $key => $value) {
-            if (!$value->validate(
-                (isset($form_data[$key])
-                    ? $form_data[$key] : (isset($_FILES[$this->name][$key]) ? $_FILES[$this->name][$key] : ''))
-            )
-            ) {
-                $this->valid = false;
 
+        $_SESSION["nibble_forms"]["_crsf_token"] = array();
+
+        foreach ($this->fields as $key => $value) {
+            if (!$value->validate($form_data[$key] ?? $_FILES[$this->name][$key] ?? '')) {
+                $this->valid = false;
+                return false;
+            }
+        }
+
+        foreach($this->validators as $key => $validator) {
+            if (!$validator($this->data[$key] ?? $_FILES[$this->name][$key] ?? '')) {
+                $this->fields->$key->error[] = 'Invalid data';
+
+                $this->valid = false;
                 return false;
             }
         }
 
         return $this->valid;
     }
-    
+
+    /**
+     * Return the stored data for a field, running any filters if necessary.
+     *
+     * @param $key
+     * @return bool|mixed
+     */
     public function getData($key)
     {
-        return isset($this->data[$key]) ? $this->data[$key] : false;
+        if (isset($this->filters[$key]) && is_callable($this->filters[$key])) {
+            return $this->filters[$key]($this->data[$key] ?? false);
+        }
+
+        return $this->data[$key] ?? false;
     }
 
     /**
@@ -271,11 +280,11 @@ class NibbleForm
         $fields = '';
         $error = $this->valid ? ''
             : '<p class="error">Sorry there were some errors in the form, problem fields have been highlighted</p>';
-        $format = (object) $this->formats[$this->format];
+        $format = (object)$this->formats[$this->format];
         $this->setToken();
 
         foreach ($this->fields as $key => $value) {
-            $format = (object) $this->formats[$this->format];
+            $format = (object)$this->formats[$this->format];
             $temp = isset($this->data[$key]) ? $value->returnField($this->name, $key, $this->data[$key])
                 : $value->returnField($this->name, $key);
             $fields .= $format->open_field;
@@ -478,7 +487,7 @@ FORM;
      *
      * @return array
      */
-    private function getFormAttributes()
+    protected function getFormAttributes()
     {
         $enctype = '';
         foreach ($this->fields as $field) {
@@ -490,7 +499,7 @@ FORM;
 
         return array(
             'enctype' => $enctype,
-            'html5'   => $html5
+            'html5' => $html5
         );
     }
 
@@ -500,7 +509,7 @@ FORM;
      * @param string $message
      * @param string $title
      */
-    private function setMessages($message, $title)
+    protected function setMessages($message, $title)
     {
         $title = preg_replace('/_/', ' ', ucfirst($title));
         if ($this->message_type == 'list') {
@@ -511,7 +520,7 @@ FORM;
     /**
      * Sets the messages array as an HTML string
      */
-    private function buildMessages()
+    protected function buildMessages()
     {
         $messages = '<ul class="error">';
         foreach ($this->messages as $message_array) {
@@ -533,7 +542,7 @@ FORM;
      *
      * @return string
      */
-    private function getFieldData($name, $key)
+    protected function getFieldData($name, $key)
     {
         if (!$this->checkField($name)) {
             return false;
@@ -553,7 +562,7 @@ FORM;
      *
      * @return string
      */
-    private function setToken()
+    protected function setToken()
     {
         if (!isset($_SESSION["nibble_forms"])) {
             $_SESSION["nibble_forms"] = array();
