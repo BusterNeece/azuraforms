@@ -235,15 +235,20 @@ class NibbleForm
 
         $_SESSION["nibble_forms"]["_crsf_token"] = array();
 
+        // Retrieve file data.
+        $file_data = $this->_fixFilesArray($_FILES[$this->name] ?? array());
+
+        // Validate individual fields using the class validator.
         foreach ($this->fields as $key => $value) {
-            if (!$value->validate($form_data[$key] ?? $_FILES[$this->name][$key] ?? '')) {
+            if (!$value->validate($form_data[$key] ?? $file_data[$key] ?? '')) {
                 $this->valid = false;
                 return false;
             }
         }
 
+        // Apply additional validators if specified.
         foreach($this->validators as $key => $validator) {
-            if (!$validator($this->data[$key] ?? $_FILES[$this->name][$key] ?? '')) {
+            if (!$validator($this->data[$key] ?? $file_data[$key] ?? '')) {
                 $this->fields->$key->error[] = 'Invalid data';
 
                 $this->valid = false;
@@ -252,6 +257,39 @@ class NibbleForm
         }
 
         return $this->valid;
+    }
+
+    /**
+     * Fixes the odd indexing of multiple file uploads from the format:
+     *
+     * $_FILES['field']['key']['index']
+     *
+     * To the more standard and appropriate:
+     *
+     * $_FILES['field']['index']['key']
+     *
+     * @param array $files
+     * @return array
+     * @author Corey Ballou
+     * @link http://www.jqueryin.com
+     */
+    protected function _fixFilesArray($files)
+    {
+        $names = array('name' => 1, 'type' => 1, 'tmp_name' => 1, 'error' => 1, 'size' => 1);
+
+        foreach ($files as $key => $part) {
+            // only deal with valid keys and multiple files
+            $key = (string) $key;
+            if (isset($names[$key]) && is_array($part)) {
+                foreach ($part as $position => $value) {
+                    $files[$position][$key] = $value;
+                }
+                // remove old key reference
+                unset($files[$key]);
+            }
+        }
+
+        return $files;
     }
 
     /**
