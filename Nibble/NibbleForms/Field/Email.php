@@ -6,7 +6,6 @@ use Nibble\NibbleForms\Useful;
 
 class Email extends Text
 {
-
     private $confirm = false;
 
     public function validate($val)
