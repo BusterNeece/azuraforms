@@ -43,9 +43,12 @@ class Text extends Field
 
     public function attributeString()
     {
+        $this->class = '';
+
         if (!empty($this->error)) {
             $this->class = 'error';
         }
+
         $this->attribute_string = '';
         foreach ($this->attributes as $attribute => $val) {
             if ($attribute == 'class') {
