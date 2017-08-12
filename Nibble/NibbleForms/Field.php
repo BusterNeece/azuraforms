@@ -3,7 +3,6 @@ namespace Nibble\NibbleForms;
 
 abstract class Field
 {
-
     public $custom_error = array();
     protected $form;
     public $html = array(
@@ -20,20 +19,45 @@ abstract class Field
 
     /**
      * Return the current field, i.e label and input
+     *
+     * @param $form_name
+     * @param $name
+     * @param string $value
+     * @return mixed
      */
     abstract public function returnField($form_name, $name, $value = '');
 
     /**
      * Validate the current field
+     *
+     * @param $val
+     * @return mixed
      */
     abstract public function validate($val);
 
     /**
      * Apply custom error message from user to field
+     * @param $message
      */
     public function errorMessage($message)
     {
         $this->custom_error[] = $message;
     }
 
+    /**
+     * Escape a potentially user-supplied value prior to display.
+     *
+     * @param $string
+     * @return string
+     */
+    protected function escape($string)
+    {
+        static $flags;
+
+        if (!isset($flags)) {
+            $flags = ENT_QUOTES | (defined('ENT_SUBSTITUTE') ? ENT_SUBSTITUTE : 0);
+        }
+
+        return htmlspecialchars($string, $flags, 'UTF-8');
+    }
 }

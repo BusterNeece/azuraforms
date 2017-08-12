@@ -51,7 +51,7 @@ class Password extends Text
     {
         $this->field_type = 'password';
 
-        return parent::returnField($form_name, $name, $value);
+        return parent::returnField($form_name, $name, '');
     }
 
     public function addConfirmation($field_name, $attributes = array())
