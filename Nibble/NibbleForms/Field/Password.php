@@ -12,14 +12,20 @@ class Password extends Text
 
     public function __construct($label, $attributes = array())
     {
-        parent::__construct($label, $attributes);
-
         if (isset($attributes['alphanumeric'])) {
             $this->alphanumeric = $attributes['alphanumeric'];
+            unset($attributes['alphanumeric']);
         }
         if (isset($attributes['min_length'])) {
             $this->min_length = $attributes['min_length'];
+            unset($attributes['min_length']);
         }
+        if (isset($attributes['confirm'])) {
+            $this->confirm = $attributes['confirm'];
+            unset($attributes['confirm']);
+        }
+
+        parent::__construct($label, $attributes);
     }
 
     public function validate($val)
