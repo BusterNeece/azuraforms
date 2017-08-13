@@ -22,7 +22,7 @@ class TextArea extends Text
         return array(
             'messages' => !empty($this->custom_error) && !empty($this->error) ? $this->custom_error : $this->error,
             'label' => $this->label == false ? false : sprintf('<label for="%s_%s" class="%s">%s</label>', $form_name, $name, $this->class, $this->label),
-            'field' => sprintf('<textarea name="%5$s[%1$s]" id="%5$s_%1$s" class="%2$s" %4$s>%3$s</textarea>', $name, $this->class, $this->escape($value), $this->attribute_string, $form_name),
+            'field' => sprintf('<textarea name="%1$s" id="%5$s_%1$s" class="%2$s" %4$s>%3$s</textarea>', $name, $this->class, $this->escape($value), $this->attribute_string, $form_name),
             'html' => $this->html
         );
     }

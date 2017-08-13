@@ -211,13 +211,13 @@ class NibbleForm
             $request = strtoupper($this->method) == 'POST' ? $_POST : $_GET;
         }
 
-        if (isset($request[$this->name])) {
-            $this->data = $request[$this->name];
-            $form_data = $request[$this->name];
-        } else {
+        if (empty($request)) {
             $this->valid = false;
             return false;
         }
+
+        $this->data = $request;
+        $form_data = $request;
 
         // Check CSRF token.
         if ((isset($_SESSION["nibble_forms"]["_crsf_token"], $_SESSION["nibble_forms"]["_crsf_token"][$this->name])
@@ -236,7 +236,7 @@ class NibbleForm
         $_SESSION["nibble_forms"]["_crsf_token"] = array();
 
         // Retrieve file data.
-        $file_data = $this->_fixFilesArray($_FILES[$this->name] ?? array());
+        $file_data = $this->_fixFilesArray($_FILES ?? array());
 
         // Validate individual fields using the class validator.
         foreach ($this->fields as $key => $value) {
