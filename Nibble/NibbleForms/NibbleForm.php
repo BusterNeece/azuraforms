@@ -251,7 +251,7 @@ class NibbleForm
                 /** @var callable $validator */
                 $validator = $this->validators[$key];
 
-                if (!$validator($form_data['key'] ?? $file_data[$key] ?? '', $value)) {
+                if (!$validator($form_data[$key] ?? $file_data[$key] ?? '', $value)) {
                     $this->valid = false;
                     return false;
                 }
