@@ -17,9 +17,20 @@ abstract class Field
         'close_html' => false
     ];
 
-    public function setForm($form)
+    /**
+     * @param NibbleForm $form
+     */
+    public function setForm(NibbleForm $form)
     {
         $this->form = $form;
+    }
+
+    /**
+     * @return NibbleForm
+     */
+    protected function getForm()
+    {
+        return $this->form;
     }
 
     /**
