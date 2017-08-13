@@ -28,7 +28,7 @@ abstract class Field
     /**
      * @return NibbleForm
      */
-    protected function getForm()
+    public function getForm()
     {
         return $this->form;
     }
