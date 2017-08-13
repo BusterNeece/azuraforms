@@ -67,7 +67,7 @@ class Text extends Field
             'messages' => !empty($this->custom_error) && !empty($this->error) ? $this->custom_error : $this->error,
             'label' => $this->label === false ? false : sprintf('<label for="%s_%s" class="%s">%s</label>', $form_name,
                 $name, $this->class, $this->label),
-            'field' => sprintf('<input type="%1$s" name="%6$s[%2$s]" id="%6$s_%2$s" value="%3$s" %4$s class="%5$s" />',
+            'field' => sprintf('<input type="%1$s" name="%2$s" id="%6$s_%2$s" value="%3$s" %4$s class="%5$s" />',
                 $this->field_type, $name, $this->escape($value), $this->attribute_string, $this->class, $form_name),
             'html' => $this->html
         );

@@ -95,7 +95,7 @@ class File extends Field
         return array(
             'messages' => !empty($this->custom_error) && !empty($this->error) ? $this->custom_error : $this->error,
             'label' => $this->label == false ? false : sprintf('<label for="%s_%s"%s>%s</label>', $form_name, $name, $class, $this->label),
-            'field' => sprintf('<input type="file" name="%2$s[%1$s]" id="%2$s_%1$s"/>', $name, $form_name),
+            'field' => sprintf('<input type="file" name="%1$s" id="%2$s_%1$s"/>', $name, $form_name),
             'html' => $this->html
         );
     }
