@@ -7,14 +7,10 @@ use Nibble\NibbleForms\Field;
 
 class Text extends Field
 {
-    protected $label,
-        $content = '/.*/',
-        $attribute_string = '',
-        $class = '',
-        $required = true;
+    protected $label;
+    protected $required = true;
 
-    public $error = array(),
-        $field_type = 'text';
+    public $field_type = 'text';
 
     public function __construct($label, $attributes = array())
     {
@@ -28,11 +24,6 @@ class Text extends Field
             }
         }
 
-        if (isset($attributes['content'])) {
-            $this->content = $attributes['content'];
-            unset($attributes['content']);
-        }
-
         if (isset($attributes['type'])) {
             $this->field_type = $attributes['type'];
             unset($attributes['type']);
@@ -43,32 +34,35 @@ class Text extends Field
 
     public function attributeString()
     {
-        $this->class = '';
+        $class = '';
 
         if (!empty($this->error)) {
-            $this->class = 'error';
+            $class = 'error';
         }
 
-        $this->attribute_string = '';
+        $attribute_string = '';
         foreach ($this->attributes as $attribute => $val) {
             if ($attribute == 'class') {
-                $this->class .= ' ' . $val;
+                $class .= ' ' . $val;
             } else {
-                $this->attribute_string .= $val ? ' ' . ($val === true ? $attribute : "$attribute=\"$val\"") : '';
+                $attribute_string .= $val ? ' ' . ($val === true ? $attribute : "$attribute=\"$val\"") : '';
             }
         }
+
+        return [$attribute_string, $class];
     }
 
     public function returnField($form_name, $name, $value = '')
     {
-        $this->attributeString();
+        list($attribute_string, $class) = $this->attributeString();
 
         return array(
             'messages' => !empty($this->custom_error) && !empty($this->error) ? $this->custom_error : $this->error,
-            'label' => $this->label === false ? false : sprintf('<label for="%s_%s" class="%s">%s</label>', $form_name,
-                $name, $this->class, $this->label),
+            'label' => $this->label === false
+                ? false
+                : sprintf('<label for="%s_%s">%s</label>', $form_name, $name, $this->label),
             'field' => sprintf('<input type="%1$s" name="%2$s" id="%6$s_%2$s" value="%3$s" %4$s class="%5$s" />',
-                $this->field_type, $name, $this->escape($value), $this->attribute_string, $this->class, $form_name),
+                $this->field_type, $name, $this->escape($value), $attribute_string, $class, $form_name),
             'html' => $this->html
         );
     }
@@ -77,17 +71,10 @@ class Text extends Field
     {
         if ($this->required) {
             if (Useful::stripper($val) === false) {
-                $this->error[] = 'is required';
-            }
-        }
-
-        if (Useful::stripper($val) !== false) {
-            if (!preg_match($this->content, $val)) {
-                $this->error[] = 'is not valid';
+                $this->error[] = 'This field is required.';
             }
         }
 
         return !empty($this->error) ? false : true;
     }
-
 }

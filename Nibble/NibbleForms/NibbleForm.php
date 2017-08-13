@@ -240,19 +240,21 @@ class NibbleForm
 
         // Validate individual fields using the class validator.
         foreach ($this->fields as $key => $value) {
+            /** @var Field $value */
             if (!$value->validate($form_data[$key] ?? $file_data[$key] ?? '')) {
                 $this->valid = false;
                 return false;
             }
-        }
 
-        // Apply additional validators if specified.
-        foreach($this->validators as $key => $validator) {
-            if (!$validator($this->data[$key] ?? $file_data[$key] ?? '')) {
-                $this->fields->$key->error[] = 'Invalid data';
+            // Apply additional validators if specified.
+            if (isset($this->validators[$key])) {
+                /** @var callable $validator */
+                $validator = $this->validators[$key];
 
-                $this->valid = false;
-                return false;
+                if (!$validator($form_data['key'] ?? $file_data[$key] ?? '', $value)) {
+                    $this->valid = false;
+                    return false;
+                }
             }
         }
 
@@ -296,11 +298,12 @@ class NibbleForm
      * Return the stored data for a field, running any filters if necessary.
      *
      * @param $key
+     * @param bool $raw     Apply filters to the returned data.
      * @return bool|mixed
      */
-    public function getData($key)
+    public function getData($key, $raw = false)
     {
-        if (isset($this->filters[$key]) && is_callable($this->filters[$key])) {
+        if (!$raw && isset($this->filters[$key]) && is_callable($this->filters[$key])) {
             return $this->filters[$key]($this->data[$key] ?? false);
         }
 

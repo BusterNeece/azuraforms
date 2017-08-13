@@ -6,7 +6,6 @@ use Nibble\NibbleForms\Useful;
 
 class Password extends Text
 {
-
     private $confirm = false;
     private $min_length = false;
     private $alphanumeric = false;
@@ -14,6 +13,7 @@ class Password extends Text
     public function __construct($label, $attributes = array())
     {
         parent::__construct($label, $attributes);
+
         if (isset($attributes['alphanumeric'])) {
             $this->alphanumeric = $attributes['alphanumeric'];
         }
@@ -27,20 +27,22 @@ class Password extends Text
         if (!empty($this->error)) {
             return false;
         }
+
         if (parent::validate($val)) {
             if (Useful::stripper($val) !== false) {
                 if ($this->min_length && strlen($val) < $this->min_length) {
-                    $this->error[] = sprintf('must be more than %s characters', $this->min_length);
+                    $this->error[] = sprintf('Must be more than %s characters.', $this->min_length);
                 }
                 if ($this->alphanumeric && (!preg_match("/[A-Za-z]+/", $val) || !preg_match("/[0-9]+/", $val))) {
-                    $this->error[] = 'must have at least one alphabetic character and one numeric character';
+                    $this->error[] = 'Must have at least one alphabetic character and one numeric character.';
                 }
             }
         }
+
         if ($this->confirm) {
-            $request = strtoupper($this->form->getMethod()) == 'POST' ? $_POST : $_GET;
-            if ($val != $request[$this->form->getName()][$this->confirm]) {
-                $this->error[] = 'The passwords provided do not match password';
+            $other_val = $this->form->getData($this->confirm, true);
+            if (strcmp($val, $other_val) !== 0) {
+                $this->error[] = 'The passwords provided do not match.';
             }
         }
 

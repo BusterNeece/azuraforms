@@ -3,14 +3,19 @@ namespace Nibble\NibbleForms;
 
 abstract class Field
 {
-    public $custom_error = array();
+    /** @var NibbleForm */
     protected $form;
-    public $html = array(
+
+    protected $attributes = [];
+
+    public $custom_error = [];
+    public $error = [];
+    public $html = [
         'open_field' => false,
         'close_field' => false,
         'open_html' => false,
         'close_html' => false
-    );
+    ];
 
     public function setForm($form)
     {

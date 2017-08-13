@@ -13,6 +13,7 @@ class Email extends Text
         if (!empty($this->error)) {
             return false;
         }
+
         if (parent::validate($val)) {
             if (Useful::stripper($val) !== false) {
                 if (!filter_var($val, FILTER_VALIDATE_EMAIL)) {
@@ -20,6 +21,7 @@ class Email extends Text
                 }
             }
         }
+
         if ($this->confirm) {
             $request = strtoupper($this->form->getMethod()) == 'POST' ? $_POST : $_GET;
             if ($val != $request[$this->form->getName()][$this->confirm]) {
