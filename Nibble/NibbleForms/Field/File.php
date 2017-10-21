@@ -5,21 +5,14 @@ use Nibble\NibbleForms\Field;
 
 class File extends Field
 {
-    protected $attributes;
-    protected $label;
-    protected $type;
-    protected $required;
-    protected $max_size;
-    protected $height;
-    protected $width;
-    protected $min_height;
-    protected $min_width;
-    protected $mime_types = array(
-        'image' => array(
+    protected $type, $max_size, $height, $width, $min_height, $min_width;
+
+    protected $mime_types = [
+        'image' => [
             'image/gif', 'image/gi_', 'image/png', 'application/png', 'application/x-png',
             'image/jp_', 'application/jpg', 'application/x-jpg', 'image/pjpeg', 'image/jpeg'
-        ),
-        'document' => array(
+        ],
+        'document' => [
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'application/vnd.openxmlformats-officedocument.presentationml.presentation',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -30,28 +23,27 @@ class File extends Field
             'application/vnd.oasis.opendocument.text', 'application/x-vnd.oasis.opendocument.text',
             'application/vnd.oasis.opendocument.spreadsheet', 'application/x-vnd.oasis.opendocument.spreadsheet',
             'application/vnd.oasis.opendocument.presentation', 'application/x-vnd.oasis.opendocument.presentation'
-        ),
-        'archive' => array(
+        ],
+        'archive' => [
             'application/x-compressed', 'application/gzip-compressed', 'gzip/document',
             'application/x-zip-compressed', 'application/zip', 'multipart/x-zip',
             'application/tar', 'application/x-tar', 'applicaton/x-gtar', 'multipart/x-tar',
             'application/gzip', 'application/x-gzip', 'application/x-gunzip', 'application/gzipped'
-        )
-    );
-    protected $error_types = array(
+        ]
+    ];
+
+    protected $error_types = [
         'image' => 'must be an image, e.g example.jpg or example.gif',
         'archive' => 'must be and archive, e.g example.zip or example.tar',
         'document' => 'must be a document, e.g example.doc or example.pdf',
         'all' => 'must be a document, archive or image',
         'custom' => 'is invalid'
-    );
-
-    public $error = array();
+    ];
 
     /**
      * File constructor.
-     * @param $id
-     * @param array $attributes
+     * @param $label
+     * @param $attributes
      */
     public function __construct($label, $attributes)
     {

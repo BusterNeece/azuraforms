@@ -19,6 +19,7 @@ class Markup extends Field
     {
         $this->label = $label;
         $this->markup = $attributes['markup'];
+        $this->required = false;
     }
 
     protected function _getField($form_name, $name, $value = '')

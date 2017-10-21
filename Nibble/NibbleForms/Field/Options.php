@@ -13,6 +13,7 @@ abstract class Options extends BaseOptions
                 $this->error[] = 'is required';
             }
         }
+
         if (in_array($val, $this->false_values)) {
             $this->error[] = "$val is not a valid choice";
         }

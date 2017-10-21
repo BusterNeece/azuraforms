@@ -8,7 +8,7 @@ abstract class Field
 
     protected $label;
     protected $attributes = [];
-    protected $required = true;
+    protected $required = false;
 
     public $field_type;
     public $custom_error = [];

@@ -5,10 +5,8 @@ use Nibble\NibbleForms\Field;
 
 abstract class BaseOptions extends Field
 {
-    protected $label, $options = array();
-    protected $required = true;
-    protected $false_values = array();
-    public $error = array();
+    protected $options = [];
+    protected $false_values = [];
 
     public function __construct($label, $attributes = array())
     {
