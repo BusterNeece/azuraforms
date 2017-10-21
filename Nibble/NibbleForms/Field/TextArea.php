@@ -16,16 +16,10 @@ class TextArea extends Text
         }
     }
 
-    public function returnField($form_name, $name, $value = '')
+    protected function _getField($form_name, $name, $value = '')
     {
-        list($attribute_string, $class) = $this->attributeString();
+        list($attribute_string, $class) = $this->_attributeString();
 
-        return array(
-            'messages' => !empty($this->custom_error) && !empty($this->error) ? $this->custom_error : $this->error,
-            'label' => $this->label == false ? false : sprintf('<label for="%s_%s">%s</label>', $form_name, $name, $this->label),
-            'field' => sprintf('<textarea name="%1$s" id="%5$s_%1$s" class="%2$s" %4$s>%3$s</textarea>', $name, $class, $this->escape($value), $attribute_string, $form_name),
-            'html' => $this->html
-        );
+        return sprintf('<textarea name="%1$s" id="%5$s_%1$s" class="%2$s" %4$s>%3$s</textarea>', $name, $class, $this->escape($value), $attribute_string, $form_name);
     }
-
 }

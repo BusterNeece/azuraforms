@@ -6,6 +6,13 @@ use Nibble\NibbleForms\Useful;
 
 class Number extends Text
 {
+    public function __construct($label, array $attributes = array())
+    {
+        parent::__construct($label, $attributes);
+
+        $this->field_type = 'number';
+    }
+
     public function validate($val)
     {
         if (!empty($this->error)) {
@@ -22,12 +29,4 @@ class Number extends Text
 
         return !empty($this->error) ? false : true;
     }
-
-    public function returnField($form_name, $name, $value = '')
-    {
-        $this->field_type = 'number';
-
-        return parent::returnField($form_name, $name, $value);
-    }
-
 }

@@ -6,9 +6,9 @@ use Nibble\NibbleForms\Useful;
 
 class Password extends Text
 {
-    private $confirm = false;
-    private $min_length = false;
-    private $alphanumeric = false;
+    protected $confirm = false;
+    protected $min_length = false;
+    protected $alphanumeric = false;
 
     public function __construct($label, $attributes = array())
     {
@@ -26,6 +26,8 @@ class Password extends Text
         }
 
         parent::__construct($label, $attributes);
+
+        $this->field_type = 'password';
     }
 
     public function validate($val)
@@ -53,13 +55,6 @@ class Password extends Text
         }
 
         return !empty($this->error) ? false : true;
-    }
-
-    public function returnField($form_name, $name, $value = '')
-    {
-        $this->field_type = 'password';
-
-        return parent::returnField($form_name, $name, '');
     }
 
     public function addConfirmation($field_name, $attributes = array())

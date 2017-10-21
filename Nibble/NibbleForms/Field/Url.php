@@ -6,6 +6,12 @@ use Nibble\NibbleForms\Useful;
 
 class Url extends Text
 {
+    public function __construct($label, array $attributes = array())
+    {
+        parent::__construct($label, $attributes);
+
+        $this->field_type = 'url';
+    }
 
     public function validate($val)
     {
@@ -22,12 +28,4 @@ class Url extends Text
 
         return !empty($this->error) ? false : true;
     }
-
-    public function returnField($form_name, $name, $value = '')
-    {
-        $this->field_type = 'url';
-
-        return parent::returnField($form_name, $name, $value);
-    }
-
 }

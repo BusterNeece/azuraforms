@@ -7,13 +7,10 @@ use Nibble\NibbleForms\Field;
 
 class Text extends Field
 {
-    protected $label;
-    protected $required = true;
-
-    public $field_type = 'text';
-
     public function __construct($label, $attributes = array())
     {
+        $this->field_type = 'text';
+
         $this->label = $label;
 
         if (isset($attributes['required'])) {
@@ -32,7 +29,15 @@ class Text extends Field
         $this->attributes = $attributes;
     }
 
-    public function attributeString()
+    protected function _getField($form_name, $name, $value = '')
+    {
+        list($attribute_string, $class) = $this->_attributeString();
+
+        return sprintf('<input type="%1$s" name="%2$s" id="%6$s_%2$s" value="%3$s" %4$s class="%5$s" />',
+            $this->field_type, $name, $this->escape($value), $attribute_string, $class, $form_name);
+    }
+
+    protected function _attributeString()
     {
         $class = '';
 
@@ -50,21 +55,6 @@ class Text extends Field
         }
 
         return [$attribute_string, $class];
-    }
-
-    public function returnField($form_name, $name, $value = '')
-    {
-        list($attribute_string, $class) = $this->attributeString();
-
-        return array(
-            'messages' => !empty($this->custom_error) && !empty($this->error) ? $this->custom_error : $this->error,
-            'label' => $this->label === false
-                ? false
-                : sprintf('<label for="%s_%s">%s</label>', $form_name, $name, $this->label),
-            'field' => sprintf('<input type="%1$s" name="%2$s" id="%6$s_%2$s" value="%3$s" %4$s class="%5$s" />',
-                $this->field_type, $name, $this->escape($value), $attribute_string, $class, $form_name),
-            'html' => $this->html
-        );
     }
 
     public function validate($val)

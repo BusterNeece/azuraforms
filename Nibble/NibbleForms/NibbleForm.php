@@ -615,6 +615,7 @@ FORM;
             $_SESSION["nibble_forms"]["_crsf_token"] = array();
         }
         $_SESSION["nibble_forms"]["_crsf_token"][$this->name] = Useful::randomString(20);
+
         $this->addField("_crsf_token", "hidden");
         $this->addData(array("_crsf_token" => $_SESSION["nibble_forms"]["_crsf_token"][$this->name]));
     }

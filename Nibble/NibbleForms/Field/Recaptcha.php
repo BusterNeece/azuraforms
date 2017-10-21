@@ -17,22 +17,14 @@ class Recaptcha extends Field
         $this->attributes = $attributes;
     }
 
-    public function returnField($form_name, $name, $value = '')
+    protected function _getField($form_name, $name, $value = '')
     {
         $field = <<<FIELD
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>';
 <div class="g-recaptcha" data-sitekey="%S" data-theme="dark"></div>
 FIELD;
 
-        $class = !empty($this->error) ? ' class="error"' : '';
-
-        return [
-            'messages' => !empty($this->custom_error) && !empty($this->error) ? $this->custom_error : $this->error,
-            'label' => $this->label == false ? false : sprintf('<label for="%s"%s>%s</label>', $name, $class,
-                $this->label),
-            'field' => sprintf($field, $this->attributes['public_key']),
-            'html' => $this->html
-        ];
+        sprintf($field, $this->attributes['public_key']);
     }
 
     public function validate($val)

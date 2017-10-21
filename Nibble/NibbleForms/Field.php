@@ -6,8 +6,11 @@ abstract class Field
     /** @var NibbleForm */
     protected $form;
 
+    protected $label;
     protected $attributes = [];
+    protected $required = true;
 
+    public $field_type;
     public $custom_error = [];
     public $error = [];
     public $html = [
@@ -41,7 +44,44 @@ abstract class Field
      * @param string $value
      * @return mixed
      */
-    abstract public function returnField($form_name, $name, $value = '');
+    public function returnField($form_name, $name, $value = '')
+    {
+        return array(
+            'messages' => !empty($this->custom_error) && !empty($this->error) ? $this->custom_error : $this->error,
+            'label' => $this->_getLabel($form_name, $name, $value),
+            'field' => $this->_getField($form_name, $name, $value),
+            'html' => $this->html
+        );
+    }
+
+    /**
+     * Return the field body HTML for this element.
+     *
+     * @param $form_name
+     * @param $name
+     * @param string $value
+     * @return string
+     */
+    abstract protected function _getField($form_name, $name, $value = '');
+
+    /**
+     * Return the label HTML for this element.
+     *
+     * @param $form_name
+     * @param $name
+     * @param string $value
+     * @return bool|string
+     */
+    protected function _getLabel($form_name, $name, $value = '')
+    {
+        $label = false;
+        if ($this->label !== false) {
+            $required = $this->required ? '<span class="text-danger" title="Required">*</span>' : '';
+            $label = sprintf('<label for="%s_%s">%s %s</label>', $form_name, $name, $this->label, $required);
+        }
+
+        return $label;
+    }
 
     /**
      * Validate the current field

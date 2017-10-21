@@ -21,7 +21,7 @@ abstract class BaseOptions extends Field
         }
     }
 
-    public function getAttributeString($val)
+    protected function _getAttributeString($val)
     {
         $attribute_string = '';
         if (is_array($val)) {
@@ -35,5 +35,4 @@ abstract class BaseOptions extends Field
 
         return array('val' => $val, 'string' => $attribute_string);
     }
-
 }

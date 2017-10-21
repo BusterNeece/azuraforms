@@ -6,7 +6,6 @@ use Nibble\NibbleForms\Useful;
 
 abstract class Options extends BaseOptions
 {
-
     public function validate($val)
     {
         if ($this->required) {
@@ -20,5 +19,4 @@ abstract class Options extends BaseOptions
 
         return !empty($this->error) ? false : true;
     }
-
 }

@@ -3,12 +3,11 @@ namespace Nibble\NibbleForms\Field;
 
 class Hidden extends Text
 {
-    public function returnField($form_name, $name, $value = '')
+    public function __construct($label, array $attributes = array())
     {
+        parent::__construct($label, $attributes);
+
         $this->field_type = 'hidden';
         $this->label = false;
-
-        return parent::returnField($form_name, $name, $value);
     }
-
 }

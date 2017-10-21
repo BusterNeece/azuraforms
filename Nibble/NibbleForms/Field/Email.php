@@ -6,7 +6,14 @@ use Nibble\NibbleForms\Useful;
 
 class Email extends Text
 {
-    private $confirm = false;
+    protected $confirm = false;
+
+    public function __construct($label, array $attributes = array())
+    {
+        parent::__construct($label, $attributes);
+
+        $this->field_type = 'email';
+    }
 
     public function validate($val)
     {
@@ -37,12 +44,4 @@ class Email extends Text
         $this->form->addField($field_name, 'email', $attributes + $this->attributes);
         $this->confirm = Useful::slugify($field_name, '_');;
     }
-
-    public function returnField($form_name, $name, $value = '')
-    {
-        $this->field_type = 'email';
-
-        return parent::returnField($form_name, $name, $value);
-    }
-
 }
