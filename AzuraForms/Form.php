@@ -26,7 +26,30 @@ namespace AzuraForms;
 
 class Form
 {
-    protected $action, $method, $submit_value, $fields, $sticky, $format, $message_type, $multiple_errors, $html5;
+    /**
+     * @var array
+     */
+    protected $options;
+
+    /**
+     * @var array An array of "belongsTo" lookup groups (for processing data).
+     */
+    protected $groups;
+
+    /**
+     * Legacy NibbleForms Properties
+     */
+    protected $fields;
+
+    protected $action = '';
+    protected $method = 'post';
+    protected $submit_value = 'Submit';
+    protected $sticky = true;
+    protected $format = 'list';
+    protected $message_type = 'list';
+    protected $multiple_errors = false;
+    protected $html5 = true;
+
     protected $valid = true;
     protected $name = 'azuraforms_form';
     protected $messages = array();
@@ -57,41 +80,182 @@ class Form
             'close_submit' => '</td></tr></tfoot>'
         )
     );
-    protected $filters;
-    protected $validators;
+
+    protected $filters = [];
+    protected $validators = [];
 
     /**
-     * @param string $action
-     * @param string $submit_value
-     * @param bool $html5
-     * @param string $method
-     * @param bool $sticky
-     * @param string $message_type
-     * @param string $format
-     * @param bool|string $multiple_errors
+     * Form constructor.
+     * @param array $options
      */
-    public function __construct(
-        $action = '',
-        $submit_value = 'Submit',
-        $html5 = true,
-        $method = 'post',
-        $sticky = true,
-        $message_type = 'list',
-        $format = 'list',
-        $multiple_errors = false
-    ) {
-        $this->action = $action;
-        $this->submit_value = $submit_value;
-        $this->html5 = $html5;
-        $this->method = $method;
-        $this->sticky = $sticky;
-        $this->message_type = $message_type;
-        $this->format = $format;
-        $this->multiple_errors = $multiple_errors;
+    public function __construct(array $options = [])
+    {
+        $this->groups = [];
+        $this->options = $this->_cleanUpConfig($options);
+
+        $this->name = $options['name'] ?: 'app_form';
+        $this->action = $options['action'] ?: '';
 
         $this->fields = new \ArrayObject([], \ArrayObject::ARRAY_AS_PROPS);
-        $this->filters = [];
-        $this->validators = [];
+        $this->_setUpForm();
+    }
+
+    /**
+     * Unify legacy and modern form configuration for initializing the form.
+     *
+     * @param array $options
+     * @return array
+     */
+    protected function _cleanUpConfig(array $options): array
+    {
+        if (empty($options['groups'])) {
+            $options['groups'] = [];
+        }
+
+        if (!empty($options['elements'])) {
+            $options['groups'][] = ['elements' => $options['elements']];
+            unset($options['elements']);
+        }
+
+        // Standardize some field input.
+        $field_type_lookup = [
+            'checkboxes' => 'checkbox',
+            'multicheckbox' => 'checkbox',
+            'multiselect' => 'multipleSelect',
+            'textarea' => 'textArea',
+        ];
+
+        foreach ($options['groups'] as &$group) {
+            foreach ($group['elements'] as &$element) {
+                $element[0] = strtolower($element[0]);
+                if (isset($field_type_lookup[$element[0]])) {
+                    $element[0] = $field_type_lookup[$element[0]];
+                }
+
+                if (!empty($element[1]['multiOptions'])) {
+                    $element[1]['choices'] = $element[1]['multiOptions'];
+                }
+                unset($element[1]['multiOptions']);
+
+                if (!empty($element[1]['options'])) {
+                    $element[1]['choices'] = $element[1]['options'];
+                }
+                unset($element[1]['options']);
+            }
+        }
+
+        return $options;
+    }
+
+    /**
+     * Iterate through configuration options and set up each individual form element.
+     */
+    protected function _setUpForm()
+    {
+        foreach ($this->options['groups'] as $group_id => $group_info) {
+            foreach ($group_info['elements'] as $element_name => $element_info) {
+                $this->_setUpElement($element_name, $element_info);
+            }
+        }
+    }
+
+    /**
+     * Load a form element's configuration and instantiate it as an object.
+     *
+     * @param $element_name
+     * @param $element_info
+     * @return null
+     */
+    protected function _setUpElement($element_name, $element_info)
+    {
+        $field_type = $element_info[0];
+        $field_options = $element_info[1];
+
+        if (!empty($field_options['belongsTo'])) {
+            $group = $field_options['belongsTo'];
+            $this->groups[$group][] = $element_name;
+
+            $element_name = $group . '_' . $element_name;
+        }
+
+        $defaults = [
+            'required' => false,
+        ];
+        $field_options = array_merge($defaults, $field_options);
+
+        if ($field_type === 'submit') {
+            return null;
+        }
+
+        if (isset($field_options['default'])) {
+            $this->addData([$element_name => (string)$field_options['default']]);
+        }
+
+        unset($field_options['default']);
+        unset($field_options['description']);
+
+        $this->addField($element_name, $field_type, $field_options);
+    }
+
+    /**
+     * Set the already-filled data for this form.
+     *
+     * @param $data
+     */
+    public function populate($data)
+    {
+        $set_data = [];
+
+        foreach ((array)$data as $row_key => $row_value) {
+            if (is_array($row_value) && isset($this->groups[$row_key])) {
+                foreach ($row_value as $row_subkey => $row_subvalue) {
+                    $set_data[$row_key . '_' . $row_subkey] = $row_subvalue;
+                }
+            } else {
+                $set_data[$row_key] = $row_value;
+            }
+        }
+
+        foreach ($set_data as $field_name => $field_value) {
+            if ($this->checkField($field_name)) {
+                $field = $this->getField($field_name);
+
+                if ($field instanceof Field\Radio ||
+                    $field instanceof Field\Checkbox
+                ) {
+                    if ($field_value === "") {
+                        $field_value = '0';
+                    }
+                }
+
+                $set_data[$field_name] = $field_value;
+            }
+        }
+
+        $this->addData($set_data);
+    }
+
+    /**
+     * Retrieve all of the current values set on the form.
+     *
+     * @return array
+     */
+    public function getValues()
+    {
+        $values = [];
+
+        foreach ($this->options['groups'] as $fieldset) {
+            foreach ($fieldset['elements'] as $element_id => $element_info) {
+                if (!empty($element_info[1]['belongsTo'])) {
+                    $group = $element_info[1]['belongsTo'];
+                    $values[$group][$element_id] = $this->getData($group . '_' . $element_id);
+                } else {
+                    $values[$element_id] = $this->getData($element_id);
+                }
+            }
+        }
+
+        return $values;
     }
 
     /**
@@ -201,10 +365,9 @@ class Form
 
     /**
      * Validate the submitted form
-     *
      * @return boolean
      */
-    public function validate(array $request = null)
+    public function isValid(array $request = null): bool
     {
         if ($request === null) {
             $request = strtoupper($this->method) === 'POST' ? (array)$_POST : (array)$_GET;

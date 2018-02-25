@@ -7,7 +7,6 @@ class Useful
      * Strip out all empty characters from a string
      *
      * @param string $val
-     *
      * @return string
      */
     public static function stripper($val)
@@ -24,7 +23,6 @@ class Useful
      *
      * @param string $text
      * @param string $replacement
-     *
      * @return string
      */
     public static function slugify($text, $replacement = '-')
@@ -35,19 +33,45 @@ class Useful
     /**
      * Return a random string of specified length
      *
-     * @param int    $length
+     * @param int $length
      * @param string $return
      *
      * @return string
+     * @throws \Exception
      */
     public static function randomString($length = 10, $return = '')
     {
         $string = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890';
         while ($length-- > 0){
-            $return .= $string[mt_rand(0, strlen($string) - 1)];
+            $return .= $string[random_int(0, strlen($string) - 1)];
         }
 
         return $return;
     }
 
+    /**
+     * Return a UTC-localized time code given a HTML5 time input's return value.
+     *
+     * @param $input_time
+     * @return int
+     */
+    public static function getTimeCode($input_time): int
+    {
+        $dt = \DateTime::createFromFormat('!G:i', $input_time);
+        $dt->setTimezone(new \DateTimeZone('UTC'));
+
+        return (int)$dt->format('Gi');
+    }
+
+    /**
+     * Get a Unix timestamp from a given date from an HTML5 date input.
+     *
+     * @param $input_date
+     * @return int
+     */
+    public static function getTimestampFromDate($input_date): int
+    {
+        $dt = \DateTime::createFromFormat('!Y-m-d', $input_date, new \DateTimeZone('UTC'));
+        return (int)$dt->getTimestamp();
+    }
 }
