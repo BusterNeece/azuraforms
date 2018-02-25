@@ -1,5 +1,4 @@
-## Nibble Forms 2 library
-
+Copyright (c) 2016-2018 Buster "Silver Eagle" Neece
 Copyright (c) 2013 Luke Rotherfield, Nibble Development
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
