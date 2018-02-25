@@ -354,6 +354,16 @@ class Form
     }
 
     /**
+     * Get the cleaned-up flatfile configuration for this form.
+     *
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
+
+    /**
      * Add data to populate the form
      *
      * @param array $data
@@ -544,7 +554,10 @@ FORM;
     {
         return $this->getFieldData($name, 'field');
     }
-
+public function getOptions()
+    {
+        return $this->options;
+    }
     /**
      * Returns the HTML for a specific form field's label
      *
