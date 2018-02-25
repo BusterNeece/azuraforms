@@ -5,7 +5,7 @@ use AzuraForms;
 
 abstract class AbstractField
 {
-    /** @var AzuraForms\ */
+    /** @var AzuraForms\Form */
     protected $form;
 
     protected $label;
@@ -23,17 +23,17 @@ abstract class AbstractField
     ];
 
     /**
-     * @param NibbleForm $form
+     * @param AzuraForms\Form $form
      */
-    public function setForm(NibbleForm $form)
+    public function setForm(AzuraForms\Form $form)
     {
         $this->form = $form;
     }
 
     /**
-     * @return NibbleForm
+     * @return AzuraForms\Form
      */
-    public function getForm()
+    public function getForm(): \AzuraForms\Form
     {
         return $this->form;
     }
