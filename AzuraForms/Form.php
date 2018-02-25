@@ -554,10 +554,7 @@ FORM;
     {
         return $this->getFieldData($name, 'field');
     }
-public function getOptions()
-    {
-        return $this->options;
-    }
+    
     /**
      * Returns the HTML for a specific form field's label
      *
