@@ -1,9 +1,7 @@
 <?php
-namespace Nibble\NibbleForms\Field;
+namespace AzuraForms\Field;
 
-use Nibble\NibbleForms\Field;
-
-class File extends Field
+class File extends AbstractField
 {
     protected $type, $max_size, $height, $width, $min_height, $min_width;
 

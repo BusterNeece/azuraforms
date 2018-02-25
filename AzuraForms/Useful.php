@@ -1,10 +1,8 @@
 <?php
-
-namespace Nibble\NibbleForms;
+namespace AzuraForms;
 
 class Useful
 {
-
     /**
      * Strip out all empty characters from a string
      *

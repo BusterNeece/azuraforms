@@ -1,7 +1,7 @@
 <?php
-namespace Nibble\NibbleForms\Field;
+namespace AzuraForms\Field;
 
-use Nibble\NibbleForms\Useful;
+use AzuraForms\Useful;
 
 class Checkbox extends MultipleOptions
 {

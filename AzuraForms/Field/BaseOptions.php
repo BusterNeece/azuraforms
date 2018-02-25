@@ -1,9 +1,7 @@
 <?php
-namespace Nibble\NibbleForms\Field;
+namespace AzuraForms\Field;
 
-use Nibble\NibbleForms\Field;
-
-abstract class BaseOptions extends Field
+abstract class BaseOptions extends AbstractField
 {
     protected $options = [];
     protected $false_values = [];

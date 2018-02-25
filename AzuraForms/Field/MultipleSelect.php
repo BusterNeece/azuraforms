@@ -1,5 +1,5 @@
 <?php
-namespace Nibble\NibbleForms\Field;
+namespace AzuraForms\Field;
 
 class MultipleSelect extends MultipleOptions
 {

@@ -1,16 +1,15 @@
 <?php
+namespace AzuraForms\Field;
 
-namespace Nibble\NibbleForms\Field;
+use AzuraForms\Useful;
 
-use Nibble\NibbleForms\Useful;
-
-class Number extends Text
+class Url extends Text
 {
     public function __construct($label, array $attributes = array())
     {
         parent::__construct($label, $attributes);
 
-        $this->field_type = 'number';
+        $this->field_type = 'url';
     }
 
     public function validate($val)
@@ -18,11 +17,10 @@ class Number extends Text
         if (!empty($this->error)) {
             return false;
         }
-
         if (parent::validate($val)) {
             if (Useful::stripper($val) !== false) {
-                if (!filter_var($val, FILTER_VALIDATE_FLOAT)) {
-                    $this->error[] = 'Must be numeric.';
+                if (!filter_var($val, FILTER_VALIDATE_URL)) {
+                    $this->error[] = 'must be a valid URL';
                 }
             }
         }

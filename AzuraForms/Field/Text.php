@@ -1,11 +1,9 @@
 <?php
+namespace AzuraForms\Field;
 
-namespace Nibble\NibbleForms\Field;
+use AzuraForms\Useful;
 
-use Nibble\NibbleForms\Useful;
-use Nibble\NibbleForms\Field;
-
-class Text extends Field
+class Text extends AbstractField
 {
     public function __construct($label, $attributes = array())
     {

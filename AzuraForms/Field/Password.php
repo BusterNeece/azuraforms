@@ -1,8 +1,7 @@
 <?php
+namespace AzuraForms\Field;
 
-namespace Nibble\NibbleForms\Field;
-
-use Nibble\NibbleForms\Useful;
+use AzuraForms\Useful;
 
 class Password extends Text
 {

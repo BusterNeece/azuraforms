@@ -1,9 +1,7 @@
 <?php
-namespace Nibble\NibbleForms\Field;
+namespace AzuraForms\Field;
 
-use Nibble\NibbleForms\Field;
-
-class Recaptcha extends Field
+class Recaptcha extends AbstractField
 {
     public $error = [];
 

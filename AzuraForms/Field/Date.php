@@ -1,13 +1,12 @@
 <?php
+namespace AzuraForms\Field;
 
-namespace Nibble\NibbleForms\Field;
-
-class Time extends Text
+class Date extends Text
 {
     public function __construct($label, array $attributes = array())
     {
         parent::__construct($label, $attributes);
 
-        $this->field_type = 'time';
+        $this->field_type = 'date';
     }
 }

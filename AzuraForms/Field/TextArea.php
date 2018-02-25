@@ -1,5 +1,5 @@
 <?php
-namespace Nibble\NibbleForms\Field;
+namespace AzuraForms\Field;
 
 class TextArea extends Text
 {

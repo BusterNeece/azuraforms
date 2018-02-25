@@ -1,15 +1,10 @@
 <?php
-namespace Nibble\NibbleForms\Field;
-
-use Nibble\NibbleForms\Field;
+namespace AzuraForms\Field;
 
 /**
- * Class Markup
- * @package Nibble\NibbleForms\Field
- *
  * A generic "markup" field for including inline HTML in a form.
  */
-class Markup extends Field
+class Markup extends AbstractField
 {
     public $error = [];
     protected $label;

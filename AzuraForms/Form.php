@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Nibble Forms 2 library
  * Copyright (c) 2013 Luke Rotherfield, Nibble Development
@@ -23,13 +22,13 @@
  * THE SOFTWARE.
  */
 
-namespace Nibble\NibbleForms;
+namespace AzuraForms;
 
-class NibbleForm
+class Form
 {
     protected $action, $method, $submit_value, $fields, $sticky, $format, $message_type, $multiple_errors, $html5;
     protected $valid = true;
-    protected $name = 'nibble_form';
+    protected $name = 'azuraforms_form';
     protected $messages = array();
     protected $data = array();
     protected $formats = array(
@@ -90,7 +89,7 @@ class NibbleForm
         $this->format = $format;
         $this->multiple_errors = $multiple_errors;
 
-        $this->fields = new \stdClass();
+        $this->fields = new \ArrayObject([], \ArrayObject::ARRAY_AS_PROPS);
         $this->filters = [];
         $this->validators = [];
     }
@@ -108,7 +107,7 @@ class NibbleForm
     public function addField($field_name, $type = 'text', array $attributes = array(), $overwrite = false)
     {
         $namespace_options = [
-            "\\Nibble\\NibbleForms\\Field\\" . ucfirst($type),
+            "\\AzuraForms\\Field\\" . ucfirst($type),
         ];
 
         foreach ($namespace_options as $namespace_option) {
@@ -128,7 +127,7 @@ class NibbleForm
             $label = ucfirst(str_replace('_', ' ', $field_name));
         }
 
-        $field_name = \Nibble\NibbleForms\Useful::slugify($field_name, '_');
+        $field_name = Useful::slugify($field_name, '_');
 
         if (isset($this->fields->$field_name) && !$overwrite) {
             return false;
@@ -205,10 +204,10 @@ class NibbleForm
      *
      * @return boolean
      */
-    public function validate($request = null)
+    public function validate(array $request = null)
     {
         if ($request === null) {
-            $request = strtoupper($this->method) == 'POST' ? $_POST : $_GET;
+            $request = strtoupper($this->method) === 'POST' ? (array)$_POST : (array)$_GET;
         }
 
         if (empty($request)) {
@@ -220,13 +219,12 @@ class NibbleForm
         $form_data = $request;
 
         // Check CSRF token.
-        if ((isset($_SESSION["nibble_forms"]["_crsf_token"], $_SESSION["nibble_forms"]["_crsf_token"][$this->name])
+        if ((isset($_SESSION["nibble_forms"]["_crsf_token"][$this->name])
                 && $form_data["_crsf_token"] !== $_SESSION["nibble_forms"]["_crsf_token"][$this->name])
-            || !isset($_SESSION["nibble_forms"]["_crsf_token"])
-            || !isset($form_data["_crsf_token"])
+            || !isset($_SESSION["nibble_forms"]["_crsf_token"], $form_data["_crsf_token"])
         ) {
-            $title = preg_replace('/_/', ' ', ucfirst('CRSF error'));
-            if ($this->message_type == 'list') {
+            $title = str_replace("_", ' ', ucfirst('CRSF error'));
+            if ($this->message_type === 'list') {
                 $this->messages[] = array('title' => $title, 'message' => ucfirst('CRSF token invalid'));
             }
 
@@ -240,7 +238,7 @@ class NibbleForm
 
         // Validate individual fields using the class validator.
         foreach ($this->fields as $key => $value) {
-            /** @var Field $value */
+            /** @var Field\AbstractField $value */
             if (!$value->validate($form_data[$key] ?? $file_data[$key] ?? '')) {
                 $this->valid = false;
                 return false;
@@ -324,6 +322,8 @@ class NibbleForm
         $this->setToken();
 
         foreach ($this->fields as $key => $value) {
+            /** @var Field\AbstractField $value */
+
             $format = (object)$this->formats[$this->format];
             $temp = isset($this->data[$key]) ? $value->returnField($this->name, $key, $this->data[$key])
                 : $value->returnField($this->name, $key);
@@ -333,7 +333,7 @@ class NibbleForm
             }
             if (isset($temp['messages'])) {
                 foreach ($temp['messages'] as $message) {
-                    if ($this->message_type == 'inline') {
+                    if ($this->message_type === 'inline') {
                         $fields .= "$format->open_html <p class=\"error\">$message</p> $format->close_html";
                     } else {
                         $this->setMessages($message, $key);
@@ -351,7 +351,7 @@ class NibbleForm
         } else {
             $this->messages = false;
         }
-        self::$instance = false;
+
         $attributes = $this->getFormAttributes();
 
         return <<<FORM
@@ -425,11 +425,7 @@ FORM;
     public function hasError($name)
     {
         $errors = $this->getFieldData($name, 'messages');
-        if (!$errors || !is_array($errors)) {
-            return false;
-        }
-
-        return true;
+        return !(!$errors || !is_array($errors));
     }
 
     /**
@@ -480,7 +476,7 @@ FORM;
     public function renderErrors()
     {
         $error_string = '';
-        foreach (array_keys($this->fields) as $name) {
+        foreach ($this->fields as $name => $field) {
             foreach ($this->getFieldData($name, 'messages') as $error) {
                 $error_string .= "<li>$error</li>\n";
             }
@@ -552,8 +548,8 @@ FORM;
      */
     protected function setMessages($message, $title)
     {
-        $title = preg_replace('/_/', ' ', ucfirst($title));
-        if ($this->message_type == 'list') {
+        $title = str_replace("_", ' ', ucfirst($title));
+        if ($this->message_type === 'list') {
             $this->messages[] = array('title' => $title, 'message' => ucfirst($message));
         }
     }
@@ -567,7 +563,7 @@ FORM;
         foreach ($this->messages as $message_array) {
             $messages .= sprintf(
                 '<li>%s: %s</li>%s',
-                ucfirst(preg_replace('/_/', ' ', $message_array['title'])),
+                ucfirst(str_replace("_", ' ', $message_array['title'])),
                 ucfirst($message_array['message']),
                 "\n"
             );
@@ -589,7 +585,7 @@ FORM;
             return false;
         }
 
-        /** @var Field $field */
+        /** @var Field\AbstractField $field */
         $field = $this->fields->$name;
 
         if (isset($this->data[$name])) {

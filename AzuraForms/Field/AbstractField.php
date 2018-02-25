@@ -1,9 +1,11 @@
 <?php
-namespace Nibble\NibbleForms;
+namespace AzuraForms\Field;
 
-abstract class Field
+use AzuraForms;
+
+abstract class AbstractField
 {
-    /** @var NibbleForm */
+    /** @var AzuraForms\ */
     protected $form;
 
     protected $label;
