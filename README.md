@@ -1,4 +1,4 @@
-## AzuraForms: 
+## AzuraForms
 
 This project is a standalone library for creating and validating PHP webforms powered by simple PHP configuration files.
 
