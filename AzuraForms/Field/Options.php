@@ -24,4 +24,29 @@ abstract class Options extends BaseOptions
     {
         return false;
     }
+
+    public function getSelectedValue()
+    {
+        return $this->options['choices'][$this->value] ?? null;
+    }
+
+    public function renderView($show_empty = false): string
+    {
+        $value = $this->getSelectedValue();
+
+        if (empty($value) && !$show_empty) {
+            return '';
+        }
+
+        if ($this->options['escape_choices']) {
+            $value = $this->escape($value);
+        }
+
+        $output = '';
+        if (!empty($this->options['label'])) {
+            $output .= '<dt>'.$this->options['label'].'</dt>';
+        }
+        $output .= '<dd>'.$value.'</dd>';
+        return $output;
+    }
 }

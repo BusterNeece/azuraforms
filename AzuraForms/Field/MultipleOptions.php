@@ -19,4 +19,41 @@ abstract class MultipleOptions extends BaseOptions
             return true;
         };
     }
+
+    public function getSelectedValue()
+    {
+        $selected = [];
+
+        if (is_array($this->value)) {
+            foreach($this->value as $selected_key) {
+                if (isset($this->options['choices'][$selected_key])) {
+                    $selected[] = $this->options['choices'][$selected_key];
+                }
+            }
+        }
+
+        return $selected;
+    }
+
+    public function renderView($show_empty = false): string
+    {
+        $value = $this->getSelectedValue();
+
+        if (empty($value) && !$show_empty) {
+            return '';
+        }
+
+        if ($this->options['escape_choices']) {
+            $value = array_walk($value, function(&$choice) {
+                $choice = $this->escape($choice);
+            });
+        }
+
+        $output = '';
+        if (!empty($this->options['label'])) {
+            $output .= '<dt>'.$this->options['label'].'</dt>';
+        }
+        $output .= '<dd>'.implode('<br>', $value).'</dd>';
+        return $output;
+    }
 }
