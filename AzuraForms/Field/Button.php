@@ -23,4 +23,9 @@ class Button extends Text
     {
         return true;
     }
+
+    public function renderView($show_empty = false): string
+    {
+        return null;
+    }
 }

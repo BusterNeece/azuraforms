@@ -34,4 +34,9 @@ FIELD;
 
         return sprintf($field, $this->attributes['public_key']);
     }
+
+    public function renderView($show_empty = false): string
+    {
+        return null;
+    }
 }

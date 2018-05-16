@@ -21,4 +21,9 @@ class Markup extends AbstractField
     {
         return true;
     }
+
+    public function renderView($show_empty = false): string
+    {
+        return null;
+    }
 }

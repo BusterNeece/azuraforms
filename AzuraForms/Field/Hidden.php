@@ -10,4 +10,9 @@ class Hidden extends Text
         $this->attributes['type'] = 'hidden';
         $this->options['label'] = false;
     }
+
+    public function renderView($show_empty = false): string
+    {
+        return null;
+    }
 }
