@@ -106,6 +106,22 @@ abstract class AbstractField
     }
 
     /**
+     * @return AzuraForms\Form
+     */
+    public function getForm(): AzuraForms\Form
+    {
+        return $this->form;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
      * @return mixed
      */
     public function getValue()
