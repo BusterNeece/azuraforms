@@ -10,7 +10,7 @@ class MultipleSelect extends MultipleOptions
             $form_name
         );
 
-        foreach ($this->options as $key => $val) {
+        foreach ($this->options['choices'] as $key => $val) {
             list($choice_val, $choice_attributes) = $this->_getAttributeString($val);
             $field .= sprintf('<option value="%s" %s>%s</option>',
                 $key,

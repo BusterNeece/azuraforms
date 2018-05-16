@@ -108,7 +108,7 @@ class File extends AbstractField
                     $this->errors[] = $this->error_types[$this->options['type']];
                     return false;
                 }
-            } elseif (!in_array($val['type'], $this->mime_types)) {
+            } elseif (!in_array($val['type'], $this->options['mime_types'])) {
                 $this->errors[] = $this->error_types[$this->options['type']];
                 return false;
             }

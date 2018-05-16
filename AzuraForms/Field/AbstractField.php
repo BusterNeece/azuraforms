@@ -232,7 +232,7 @@ abstract class AbstractField
         $this->errors = [];
 
         if ($this->options['required']) {
-            if (empty($value)) {
+            if ($this->_isEmpty($value)) {
                 $this->errors[] = 'This field is required.';
                 return false;
             }
@@ -253,6 +253,17 @@ abstract class AbstractField
         }
 
         return true;
+    }
+
+    /**
+     * Allow individual elements to change what the "is empty" criteria are for required fields.
+     *
+     * @param $value
+     * @return bool
+     */
+    protected function _isEmpty($value): bool
+    {
+        return (empty($value));
     }
 
     /**
