@@ -252,7 +252,7 @@ class Form
             throw new \Exception(sprintf('Input type "%s" already exists.', $type));
         }
 
-        $this->fields[$field_name] = new $class($field_name, $attributes);
+        $this->fields[$field_name] = new $class($this, $field_name, $attributes);
         return $this->fields[$field_name];
     }
 

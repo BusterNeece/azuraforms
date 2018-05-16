@@ -5,6 +5,9 @@ use AzuraForms;
 
 abstract class AbstractField
 {
+    /** @var AzuraForms\Form The parent form that contains this field, used for enhanced validation. */
+    protected $form;
+
     /** @var string The element name in the form. */
     protected $name;
 
@@ -33,10 +36,15 @@ abstract class AbstractField
     protected $validators = [];
 
     /**
+     * AbstractField constructor.
+     *
+     * @param AzuraForms\Form $form
+     * @param $element_name
      * @param array $config
      */
-    public function __construct($element_name, array $config = [])
+    public function __construct(\AzuraForms\Form $form, $element_name, array $config = [])
     {
+        $this->form = $form;
         $this->name = $element_name;
         $this->configure($config);
     }
@@ -195,7 +203,7 @@ abstract class AbstractField
      */
     public function renderView($show_empty = false): string
     {
-        if (empty($value) && !$show_empty) {
+        if (empty($this->value) && !$show_empty) {
             return '';
         }
 
