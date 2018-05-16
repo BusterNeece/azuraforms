@@ -3,11 +3,11 @@ namespace AzuraForms\Field;
 
 class Hidden extends Text
 {
-    public function __construct($label, array $attributes = array())
+    public function configure(array $config = [])
     {
-        parent::__construct($label, $attributes);
+        parent::configure($config);
 
-        $this->field_type = 'hidden';
-        $this->label = false;
+        $this->attributes['type'] = 'hidden';
+        $this->options['label'] = false;
     }
 }

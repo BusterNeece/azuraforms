@@ -1,31 +1,19 @@
 <?php
 namespace AzuraForms\Field;
 
-use AzuraForms\Useful;
-
 class Number extends Text
 {
-    public function __construct($label, array $attributes = array())
+    public function configure(array $config = [])
     {
-        parent::__construct($label, $attributes);
+        parent::configure($config);
 
-        $this->field_type = 'number';
-    }
+        $this->attributes['type'] = 'number';
 
-    public function validate($val)
-    {
-        if (!empty($this->error)) {
-            return false;
-        }
-
-        if (parent::validate($val)) {
-            if (Useful::stripper($val) !== false) {
-                if (!filter_var($val, FILTER_VALIDATE_FLOAT)) {
-                    $this->error[] = 'Must be numeric.';
-                }
+        $this->validators[] = function($value) {
+            if (!filter_var($value, \FILTER_VALIDATE_FLOAT)) {
+                return 'Must be numeric.';
             }
-        }
-
-        return !empty($this->error) ? false : true;
+            return true;
+        };
     }
 }

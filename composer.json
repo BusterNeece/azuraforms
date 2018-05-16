@@ -2,7 +2,7 @@
     "name" : "azuracast/azuraforms",
     "description": "A modern, namespaced, configuration-driven forms engine for PHP.",
     "require": {
-        "php": ">=7.0"
+        "php": ">=7.2"
     },
     "homepage": "https://github.com/AzuraCast/azuraforms",
     "license": "MIT",

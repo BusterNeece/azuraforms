@@ -3,12 +3,16 @@ namespace AzuraForms\Field;
 
 class Select extends Options
 {
-    protected function _getField($form_name, $name, $value = '')
+    public function getField($form_name): ?string
     {
-        $field = sprintf('<select name="%1$s" id="%2$s_%1$s">', $name, $form_name);
+        $field = sprintf('<select name="%1$s" id="%2$s_%1$s">', $this->name, $form_name);
         foreach ($this->options as $key => $val) {
             $attributes = $this->_getAttributeString($val);
-            $field .= sprintf('<option value="%s" %s>%s</option>', $key, ((string) $key === (string) $value ? 'selected="selected"' : '') . $attributes['string'], $attributes['val']);
+            $field .= sprintf('<option value="%s" %s>%s</option>',
+                $key,
+                ((string) $key === (string) $this->value ? 'selected="selected"' : '') . $attributes['string'],
+                $attributes['val']
+            );
         }
         $field .= '</select>';
 

@@ -1,65 +1,22 @@
 <?php
 namespace AzuraForms\Field;
 
-use AzuraForms\Useful;
-
 class Password extends Text
 {
-    protected $confirm = false;
-    protected $min_length = false;
-    protected $alphanumeric = false;
-
-    public function __construct($label, $attributes = array())
+    public function configure(array $config = [])
     {
-        if (isset($attributes['alphanumeric'])) {
-            $this->alphanumeric = $attributes['alphanumeric'];
-            unset($attributes['alphanumeric']);
-        }
-        if (isset($attributes['min_length'])) {
-            $this->min_length = $attributes['min_length'];
-            unset($attributes['min_length']);
-        }
-        if (isset($attributes['confirm'])) {
-            $this->confirm = $attributes['confirm'];
-            unset($attributes['confirm']);
-        }
+        parent::configure($config);
 
-        parent::__construct($label, $attributes);
+        $this->attributes['type'] = 'password';
 
-        $this->field_type = 'password';
-    }
+        $this->options['min_length'] = $this->attributes['min_length'] ?? 0;
+        unset($this->attributes['min_length']);
 
-    public function validate($val)
-    {
-        if (!empty($this->error)) {
-            return false;
-        }
-
-        if (parent::validate($val)) {
-            if (Useful::stripper($val) !== false) {
-                if ($this->min_length && strlen($val) < $this->min_length) {
-                    $this->error[] = sprintf('Must be more than %s characters.', $this->min_length);
-                }
-                if ($this->alphanumeric && (!preg_match("/[A-Za-z]+/", $val) || !preg_match("/[0-9]+/", $val))) {
-                    $this->error[] = 'Must have at least one alphabetic character and one numeric character.';
-                }
+        $this->validators[] = function($value) {
+            if ($this->options['min_length'] && strlen($value) < $this->options['min_length']) {
+                return sprintf('Must be more than %s characters.', $this->options['min_length']);
             }
-        }
-
-        if ($this->confirm) {
-            $other_val = $this->form->getData($this->confirm, true);
-            if (strcmp($val, $other_val) !== 0) {
-                $this->error[] = 'The passwords provided do not match.';
-            }
-        }
-
-        return !empty($this->error) ? false : true;
+            return true;
+        };
     }
-
-    public function addConfirmation($field_name, $attributes = array())
-    {
-        $this->form->addField($field_name, 'password', $attributes + $this->attributes);
-        $this->confirm = $field_name;
-    }
-
 }

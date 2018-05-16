@@ -3,20 +3,6 @@ namespace AzuraForms\Field;
 
 abstract class BaseOptions extends AbstractField
 {
-    protected $options = [];
-    protected $false_values = [];
-
-    public function __construct($label, $attributes = array())
-    {
-        $this->label = $label;
-        if (isset($attributes["choices"])) {
-            $this->options = $attributes["choices"];
-        }
-        if (isset($attributes['required'])) {
-            $this->required = $attributes['required'];
-        }
-    }
-
     protected function _getAttributeString($val)
     {
         $attribute_string = '';
@@ -29,6 +15,6 @@ abstract class BaseOptions extends AbstractField
             }
         }
 
-        return array('val' => $val, 'string' => $attribute_string);
+        return [$val, $attribute_string];
     }
 }

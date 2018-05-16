@@ -1,38 +1,29 @@
 <?php
 namespace AzuraForms\Field;
 
-use AzuraForms\Useful;
-
 class Text extends AbstractField
 {
-    public function __construct($label, $attributes = array())
+    public function configure(array $config = [])
     {
-        $this->field_type = 'text';
+        parent::configure($config);
 
-        $this->label = $label;
-
-        if (isset($attributes['required'])) {
-            $this->required = $attributes['required'];
-
-            if ($attributes['required']) {
-                $attributes['required'] = 'required';
-            }
+        if (!isset($this->attributes['type'])) {
+            $this->attributes['type'] = 'text';
         }
-
-        if (isset($attributes['type'])) {
-            $this->field_type = $attributes['type'];
-            unset($attributes['type']);
-        }
-
-        $this->attributes = $attributes;
     }
 
-    protected function _getField($form_name, $name, $value = '')
+    public function getField($form_name): ?string
     {
         list($attribute_string, $class) = $this->_attributeString();
 
         return sprintf('<input type="%1$s" name="%2$s" id="%6$s_%2$s" value="%3$s" %4$s class="%5$s" />',
-            $this->field_type, $name, $this->escape($value), $attribute_string, $class, $form_name);
+            $this->attributes['type'],
+            $this->name,
+            $this->escape($this->value),
+            $attribute_string,
+            $class,
+            $form_name
+        );
     }
 
     protected function _attributeString()
@@ -53,16 +44,5 @@ class Text extends AbstractField
         }
 
         return [$attribute_string, $class];
-    }
-
-    public function validate($val)
-    {
-        if ($this->required) {
-            if (Useful::stripper($val) === false) {
-                $this->error[] = 'This field is required.';
-            }
-        }
-
-        return !empty($this->error) ? false : true;
     }
 }

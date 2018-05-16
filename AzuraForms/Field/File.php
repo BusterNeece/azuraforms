@@ -3,8 +3,6 @@ namespace AzuraForms\Field;
 
 class File extends AbstractField
 {
-    protected $type, $max_size, $height, $width, $min_height, $min_width;
-
     protected $mime_types = [
         'image' => [
             'image/gif', 'image/gi_', 'image/png', 'application/png', 'application/x-png',
@@ -31,86 +29,91 @@ class File extends AbstractField
     ];
 
     protected $error_types = [
-        'image' => 'must be an image, e.g example.jpg or example.gif',
-        'archive' => 'must be and archive, e.g example.zip or example.tar',
-        'document' => 'must be a document, e.g example.doc or example.pdf',
-        'all' => 'must be a document, archive or image',
-        'custom' => 'is invalid'
+        'image' => 'File must be an image, e.g example.jpg or example.gif',
+        'archive' => 'File must be an archive, e.g example.zip or example.tar',
+        'document' => 'File must be a document, e.g example.doc or example.pdf',
+        'all' => 'File must be a document, archive or image.',
+        'custom' => 'File is invalid.'
     ];
 
-    /**
-     * File constructor.
-     * @param $label
-     * @param $attributes
-     */
-    public function __construct($label, $attributes)
+    public function configure(array $config = [])
     {
-        $attributes = (array)$attributes;
+        parent::configure($config);
 
-        $this->label = $label;
-        $this->required = $attributes['required'] ?? false;
-        $this->max_size = $attributes['max_size'] ?? 10 * 1024 * 1024;
-        $this->width = $attributes['width'] ?? 1600;
-        $this->height = $attributes['height'] ?? 1600;
-        $this->min_width = $attributes['min_width'] ?? 0;
-        $this->min_height = $attributes['min_height'] ?? 0;
+        $file_options = [
+            'max_size' => 10 * 1024 * 1024,
+            'width' => 1600,
+            'height' => 1600,
+            'min_width' => 0,
+            'min_height' => 0,
+            'type' => 'all',
+        ];
 
-        $type = $attributes['type'] ?? 'all';
-        if (is_array($type)) {
-            $this->mime_types = $type;
-            $this->type = 'custom';
-        } else {
-            $this->type = $type;
-            if (isset($this->mime_types[$type])) {
-                $this->mime_types = $this->mime_types[$type];
-            } else {
-                $temp = array();
-                foreach ($this->mime_types as $mime_array)
-                    foreach ($mime_array as $mime_type)
-                        $temp[] = $mime_type;
-                $this->mime_types = $temp;
-                $this->type = 'all';
-                unset($temp);
-            }
+        foreach($file_options as $option_key => $option_default) {
+            $this->options[$option_key] = $this->attributes[$option_key] ?? $option_default;
+            unset($this->attributes[$option_key]);
         }
 
-        unset($attributes['required'], $attributes['max_size'], $attributes['width'], $attributes['height'], $attributes['min_width'], $attributes['min_height']);
-        $this->attributes = $attributes;
+        if (is_array($this->options['type'])) {
+            $this->options['mime_types'] = $this->options['type'];
+            $this->options['type'] = 'custom';
+        } else if (isset($this->mime_types[$this->options['type']])) {
+            $this->options['mime_types'] = $this->mime_types[$this->options['type']];
+        }
     }
 
-    protected function _getField($form_name, $name, $value = '')
+    public function getField($form_name): ?string
     {
-        return sprintf('<input type="file" name="%1$s" id="%2$s_%1$s"/>', $name, $form_name);
+        return sprintf('<input type="file" name="%1$s" id="%2$s_%1$s"/>',
+            $this->name,
+            $form_name
+        );
     }
 
-    public function validate($val)
+    protected function _validateValue($val): bool
     {
-        if ($this->required) {
+        if ($this->options['required']) {
             if ($val['error'] != 0 || $val['size'] == 0) {
-                $this->error[] = 'is required';
+                $this->errors[] = 'This field is required.';
+                return false;
             }
         }
-        if ($val['error'] == 0) {
-            if ($val['size'] > $this->max_size) {
-                $this->error[] = sprintf('must be less than %sMb', $this->max_size / 1024 / 1024);
+
+        if ($val['error'] == \UPLOAD_ERR_OK) {
+            if ($val['size'] > $this->options['max_size']) {
+                $this->errors[] = sprintf('File must be less than %sMB.',
+                    round($this->options['max_size'] / 1024 / 1024, 2)
+                );
+                return false;
             }
-            if ($this->type == 'image') {
+
+            if ($this->options['type'] == 'image') {
                 $image = getimagesize($val['tmp_name']);
-                if ($image[0] > $this->width || $image[1] > $this->height) {
-                    $this->error[] = sprintf('must contain an image no more than %s pixels wide and %s pixels high', $this->width, $this->height);
+                if ($image[0] > $this->options['width'] || $image[1] > $this->options['height']) {
+                    $this->errors[] = sprintf('File must contain an image no more than %s pixels wide and %s pixels tall.',
+                        $this->options['width'],
+                        $this->options['height']
+                    );
+                    return false;
                 }
-                if ($image[0] < $this->min_width || $image[1] < $this->min_height) {
-                    $this->error[] = sprintf('must contain an image at least %s pixels wide and %s pixels high', $this->min_width, $this->min_height);
+                if ($image[0] < $this->options['min_width'] || $image[1] < $this->options['min_height']) {
+                    $this->errors[] = sprintf('File must contain an image at least %s pixels wide and %s pixels tall.',
+                        $this->options['min_width'],
+                        $this->options['min_height']
+                    );
+                    return false;
                 }
-                if (!in_array($image['mime'], $this->mime_types)) {
-                    $this->error[] = $this->error_types[$this->type];
+
+                if (!in_array($image['mime'], $this->options['mime_types'])) {
+                    $this->errors[] = $this->error_types[$this->options['type']];
+                    return false;
                 }
             } elseif (!in_array($val['type'], $this->mime_types)) {
-                $this->error[] = $this->error_types[$this->type];
+                $this->errors[] = $this->error_types[$this->options['type']];
+                return false;
             }
         }
 
-        return !empty($this->error) ? false : true;
+        return true;
     }
-
 }

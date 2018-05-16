@@ -1,30 +1,19 @@
 <?php
 namespace AzuraForms\Field;
 
-use AzuraForms\Useful;
-
 class Url extends Text
 {
-    public function __construct($label, array $attributes = array())
+    public function configure(array $config = [])
     {
-        parent::__construct($label, $attributes);
+        parent::configure($config);
 
-        $this->field_type = 'url';
-    }
+        $this->attributes['type'] = 'url';
 
-    public function validate($val)
-    {
-        if (!empty($this->error)) {
-            return false;
-        }
-        if (parent::validate($val)) {
-            if (Useful::stripper($val) !== false) {
-                if (!filter_var($val, FILTER_VALIDATE_URL)) {
-                    $this->error[] = 'must be a valid URL';
-                }
+        $this->validators[] = function($value) {
+            if (!filter_var($value, \FILTER_VALIDATE_URL)) {
+                return 'Must be a valid URL.';
             }
-        }
-
-        return !empty($this->error) ? false : true;
+            return true;
+        };
     }
 }

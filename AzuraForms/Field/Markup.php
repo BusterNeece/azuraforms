@@ -6,23 +6,18 @@ namespace AzuraForms\Field;
  */
 class Markup extends AbstractField
 {
-    public $error = [];
-    protected $label;
-    protected $markup;
-
-    public function __construct($label = 'CAPTCHA', $attributes = [])
+    public function getValue()
     {
-        $this->label = $label;
-        $this->markup = $attributes['markup'];
-        $this->required = false;
+        // Indicate that this field shouldn't be included in bulk value returns.
+        return null;
     }
 
-    protected function _getField($form_name, $name, $value = '')
+    public function getField($form_name): ?string
     {
-        return $this->markup;
+        return $this->attributes['markup'];
     }
 
-    public function validate($val)
+    public function isValid($new_value = null): bool
     {
         return true;
     }

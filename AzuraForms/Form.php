@@ -1,326 +1,52 @@
 <?php
 /**
- * Nibble Forms 2 library
+ * AzuraForms Alpha
+ *
+ * Initially built upon Nibble Forms 2
  * Copyright (c) 2013 Luke Rotherfield, Nibble Development
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
  */
 
 namespace AzuraForms;
 
 class Form
 {
-    /**
-     * @var array
-     */
+    public const DEFAULT_FORM_NAME = 'azuraforms_form';
+    public const CSRF_FIELD_NAME = '_csrf';
+
+    public const METHOD_POST = 'POST';
+    public const METHOD_GET = 'GET';
+
+    /** @var array The form's configuration options. */
     protected $options;
 
-    /**
-     * @var array An array of "belongsTo" lookup groups (for processing data).
-     */
+    /** @var array An array of "belongsTo" lookup groups (for processing data). */
     protected $groups;
 
-    /**
-     * Legacy NibbleForms Properties
-     */
+    /** @var Field\AbstractField[] */
     protected $fields;
 
+    /** @var string The form's "action" attribute. */
     protected $action = '';
-    protected $method = 'post';
-    protected $submit_value = 'Submit';
-    protected $sticky = true;
-    protected $format = 'list';
-    protected $message_type = 'list';
-    protected $multiple_errors = false;
-    protected $html5 = true;
 
-    protected $valid = true;
-    protected $name = 'azuraforms_form';
-    protected $messages = array();
-    protected $data = array();
-    protected $formats = array(
-        'list' => array(
-            'open_form' => '<ul>',
-            'close_form' => '</ul>',
-            'open_form_body' => '',
-            'close_form_body' => '',
-            'open_field' => '',
-            'close_field' => '',
-            'open_html' => "<li>\n",
-            'close_html' => "</li>\n",
-            'open_submit' => "<li>\n",
-            'close_submit' => "</li>\n"
-        ),
-        'table' => array(
-            'open_form' => '<table>',
-            'close_form' => '</table>',
-            'open_form_body' => '<tbody>',
-            'close_form_body' => '</tbody>',
-            'open_field' => "<tr>\n",
-            'close_field' => "</tr>\n",
-            'open_html' => "<td>\n",
-            'close_html' => "</td>\n",
-            'open_submit' => '<tfoot><tr><td>',
-            'close_submit' => '</td></tr></tfoot>'
-        )
-    );
+    /** @var string The form's submission method (GET or POST). */
+    protected $method = self::METHOD_POST;
 
-    protected $filters = [];
-    protected $validators = [];
+    /** @var string The form name, used in the <form> tag and in general. */
+    protected $name = self::DEFAULT_FORM_NAME;
 
     /**
      * Form constructor.
-     * @param array $options
-     */
-    public function __construct(array $options = [])
-    {
-        $this->groups = [];
-        $this->options = $this->_cleanUpConfig($options);
-
-        $this->name = $options['name'] ?: 'app_form';
-        $this->action = $options['action'] ?: '';
-
-        $this->fields = new \ArrayObject([], \ArrayObject::ARRAY_AS_PROPS);
-        $this->_setUpForm();
-    }
-
-    /**
-     * Unify legacy and modern form configuration for initializing the form.
      *
      * @param array $options
-     * @return array
+     * @param array|null $defaults
      */
-    protected function _cleanUpConfig(array $options): array
+    public function __construct(array $options = [], array $defaults = null)
     {
-        if (empty($options['groups'])) {
-            $options['groups'] = [];
+        $this->configure($options);
+
+        if ($defaults !== null) {
+            $this->populate($defaults);
         }
-
-        if (!empty($options['elements'])) {
-            $options['groups'][] = ['elements' => $options['elements']];
-            unset($options['elements']);
-        }
-
-        // Standardize some field input.
-        $field_type_lookup = [
-            'checkboxes' => 'checkbox',
-            'multicheckbox' => 'checkbox',
-            'multiselect' => 'multipleSelect',
-            'textarea' => 'textArea',
-        ];
-
-        foreach ($options['groups'] as &$group) {
-            foreach ($group['elements'] as &$element) {
-                $element[0] = strtolower($element[0]);
-                if (isset($field_type_lookup[$element[0]])) {
-                    $element[0] = $field_type_lookup[$element[0]];
-                }
-
-                if (!empty($element[1]['multiOptions'])) {
-                    $element[1]['choices'] = $element[1]['multiOptions'];
-                }
-                unset($element[1]['multiOptions']);
-
-                if (!empty($element[1]['options'])) {
-                    $element[1]['choices'] = $element[1]['options'];
-                }
-                unset($element[1]['options']);
-            }
-        }
-
-        return $options;
-    }
-
-    /**
-     * Iterate through configuration options and set up each individual form element.
-     */
-    protected function _setUpForm()
-    {
-        foreach ($this->options['groups'] as $group_id => $group_info) {
-            foreach ($group_info['elements'] as $element_name => $element_info) {
-                $this->_setUpElement($element_name, $element_info);
-            }
-        }
-    }
-
-    /**
-     * Load a form element's configuration and instantiate it as an object.
-     *
-     * @param $element_name
-     * @param $element_info
-     * @return null
-     */
-    protected function _setUpElement($element_name, $element_info)
-    {
-        $field_type = $element_info[0];
-        $field_options = $element_info[1];
-
-        if (!empty($field_options['belongsTo'])) {
-            $group = $field_options['belongsTo'];
-            $this->groups[$group][] = $element_name;
-
-            $element_name = $group . '_' . $element_name;
-        }
-
-        $defaults = [
-            'required' => false,
-        ];
-        $field_options = array_merge($defaults, $field_options);
-
-        if ($field_type === 'submit') {
-            return null;
-        }
-
-        if (isset($field_options['default'])) {
-            $this->addData([$element_name => (string)$field_options['default']]);
-        }
-
-        unset($field_options['default']);
-        unset($field_options['description']);
-
-        $this->addField($element_name, $field_type, $field_options);
-    }
-
-    /**
-     * Set the already-filled data for this form.
-     *
-     * @param $data
-     */
-    public function populate($data)
-    {
-        $set_data = [];
-
-        foreach ((array)$data as $row_key => $row_value) {
-            if (is_array($row_value) && isset($this->groups[$row_key])) {
-                foreach ($row_value as $row_subkey => $row_subvalue) {
-                    $set_data[$row_key . '_' . $row_subkey] = $row_subvalue;
-                }
-            } else {
-                $set_data[$row_key] = $row_value;
-            }
-        }
-
-        foreach ($set_data as $field_name => $field_value) {
-            if ($this->checkField($field_name)) {
-                $field = $this->getField($field_name);
-
-                if ($field instanceof Field\Radio ||
-                    $field instanceof Field\Checkbox
-                ) {
-                    if ($field_value === "") {
-                        $field_value = '0';
-                    }
-                }
-
-                $set_data[$field_name] = $field_value;
-            }
-        }
-
-        $this->addData($set_data);
-    }
-
-    /**
-     * Retrieve all of the current values set on the form.
-     *
-     * @return array
-     */
-    public function getValues()
-    {
-        $values = [];
-
-        foreach ($this->options['groups'] as $fieldset) {
-            foreach ($fieldset['elements'] as $element_id => $element_info) {
-                if (!empty($element_info[1]['belongsTo'])) {
-                    $group = $element_info[1]['belongsTo'];
-                    $values[$group][$element_id] = $this->getData($group . '_' . $element_id);
-                } else {
-                    $values[$element_id] = $this->getData($element_id);
-                }
-            }
-        }
-
-        return $values;
-    }
-
-    /**
-     * Add a field to the form instance
-     *
-     * @param string $field_name
-     * @param string $type
-     * @param array $attributes
-     * @param boolean $overwrite
-     *
-     * @return boolean
-     */
-    public function addField($field_name, $type = 'text', array $attributes = array(), $overwrite = false)
-    {
-        $namespace_options = [
-            "\\AzuraForms\\Field\\" . ucfirst($type),
-        ];
-
-        foreach ($namespace_options as $namespace_option) {
-            if (class_exists($namespace_option)) {
-                $namespace = $namespace_option;
-                break;
-            }
-        }
-
-        if (!isset($namespace)) {
-            return false;
-        }
-
-        if (isset($attributes['label'])) {
-            $label = $attributes['label'];
-        } else {
-            $label = ucfirst(str_replace('_', ' ', $field_name));
-        }
-
-        $field_name = Useful::slugify($field_name, '_');
-
-        if (isset($this->fields->$field_name) && !$overwrite) {
-            return false;
-        }
-
-        if (!empty($attributes['filter'])) {
-            $this->filters[$field_name] = $attributes['filter'];
-            unset($attributes['filter']);
-        }
-        if (!empty($attributes['validator'])) {
-            $this->validators[$field_name] = $attributes['validator'];
-            unset($attributes['validator']);
-        }
-
-        $this->fields->$field_name = new $namespace($label, $attributes);
-        $this->fields->$field_name->setForm($this);
-
-        return $this->fields->$field_name;
-    }
-
-    /**
-     * Retrieve an already added field.
-     *
-     * @param $key
-     * @return mixed
-     */
-    public function getField($key)
-    {
-        return $this->fields->$key;
     }
 
     /**
@@ -364,81 +90,257 @@ class Form
     }
 
     /**
-     * Add data to populate the form
+     * Retrieve an already added field.
      *
-     * @param array $data
+     * @param $key
+     * @return mixed
      */
-    public function addData(array $data)
+    public function getField($key)
     {
-        $this->data = array_merge($this->data, $data);
+        if (isset($this->fields[$key])) {
+            return $this->fields[$key];
+        }
+
+        throw new \Exception(sprintf('Field name "%s" not found.', $key));
     }
 
     /**
-     * Validate the submitted form
-     * @return boolean
+     * Iterate through configuration options and set up each individual form element.
+     *
+     * @param array $options
      */
-    public function isValid(array $request = null): bool
+    public function configure(array $options)
     {
-        if ($request === null) {
-            $request = strtoupper($this->method) === 'POST' ? (array)$_POST : (array)$_GET;
+        $this->name = $options['name'] ?: 'app_form';
+        $this->action = $options['action'] ?: '';
+
+        $this->fields = [];
+        $this->groups = [];
+
+        if (empty($options['groups'])) {
+            $options['groups'] = [];
         }
 
-        if (empty($request)) {
-            $this->valid = false;
-            return false;
+        if (!empty($options['elements'])) {
+            $options['groups'][] = ['elements' => $options['elements']];
+            unset($options['elements']);
         }
 
-        $this->data = $request;
-        $form_data = $request;
-
-        // Check CSRF token.
-        if ((isset($_SESSION["nibble_forms"]["_crsf_token"][$this->name])
-                && $form_data["_crsf_token"] !== $_SESSION["nibble_forms"]["_crsf_token"][$this->name])
-            || !isset($_SESSION["nibble_forms"]["_crsf_token"], $form_data["_crsf_token"])
-        ) {
-            $title = str_replace("_", ' ', ucfirst('CRSF error'));
-            if ($this->message_type === 'list') {
-                $this->messages[] = array('title' => $title, 'message' => ucfirst('CRSF token invalid'));
+        foreach ($options['groups'] as $group_id => $group_info) {
+            foreach ($group_info['elements'] as $element_name => $element_info) {
+                $this->_configureElement($element_name, $element_info);
             }
-
-            $this->valid = false;
         }
 
-        $_SESSION["nibble_forms"]["_crsf_token"] = array();
+        $this->options = $options;
 
-        // Retrieve file data.
-        $file_data = $this->_fixFilesArray($_FILES ?? array());
+        // Add CSRF field
+        $this->addField(self::CSRF_FIELD_NAME, Field\Csrf::class, [
+            'csrf_key' => $this->name,
+        ]);
+    }
 
-        // Validate individual fields using the class validator.
-        foreach ($this->fields as $key => $value) {
-            /** @var Field\AbstractField $value */
-            if (!$value->validate($form_data[$key] ?? $file_data[$key] ?? '')) {
-                $this->valid = false;
-                return false;
+    /**
+     * Load a form element's configuration and instantiate it as an object.
+     *
+     * @param $element_name
+     * @param $element_info
+     */
+    protected function _configureElement($element_name, $element_info): void
+    {
+        $field_type = strtolower($element_info[0]);
+        $field_options = (array)$element_info[1];
+
+        if (!empty($field_options['belongsTo'])) {
+            $group = $field_options['belongsTo'];
+            $this->groups[$group][] = $element_name;
+
+            $element_name = $group . '_' . $element_name;
+            unset($field_options['belongsTo']);
+        }
+
+        $this->addField($element_name, $field_type, $field_options);
+    }
+
+    /**
+     * Set the already-filled data for this form.
+     *
+     * @param $data
+     */
+    public function populate($data)
+    {
+        $set_data = [];
+
+        foreach ((array)$data as $row_key => $row_value) {
+            if (is_array($row_value) && isset($this->groups[$row_key])) {
+                foreach ($row_value as $row_subkey => $row_subvalue) {
+                    $set_data[$row_key . '_' . $row_subkey] = $row_subvalue;
+                }
+            } else {
+                $set_data[$row_key] = $row_value;
             }
+        }
 
-            // Apply additional validators if specified.
-            if (isset($this->validators[$key])) {
-                /** @var callable $validator */
-                $validator = $this->validators[$key];
+        foreach ($set_data as $field_name => $field_value) {
+            if (isset($this->fields[$field_name])) {
+                $field = $this->fields[$field_name];
+                $field->setValue($field_value);
+            }
+        }
+    }
 
-                if (!$validator($form_data[$key] ?? $file_data[$key] ?? '', $value)) {
-                    $this->valid = false;
-                    return false;
+    /**
+     * Retrieve all of the current values set on the form.
+     *
+     * @return array
+     */
+    public function getValues()
+    {
+        $values = [];
+
+        foreach ($this->options['groups'] as $fieldset) {
+            foreach ($fieldset['elements'] as $element_id => $element_info) {
+                if (!empty($element_info[1]['belongsTo'])) {
+                    $group = $element_info[1]['belongsTo'];
+                    $value = $this->getValue($group . '_' . $element_id);
+
+                    if ($value !== null) {
+                        $values[$group][$element_id] = $value;
+                    }
+                } else {
+                    $value = $this->getValue($element_id);
+
+                    if ($value !== null) {
+                        $values[$element_id] = $value;
+                    }
                 }
             }
         }
 
-        return $this->valid;
+        return $values;
+    }
+
+    /**
+     * Return the stored data for an individual field.
+     *
+     * @param $key
+     * @return null|mixed
+     */
+    public function getValue($key)
+    {
+        if (isset($this->fields[$key])) {
+            return $this->fields[$key]->getValue();
+        }
+        return null;
+    }
+
+    /**
+     * Add a field to the form instance
+     *
+     * @param string $field_name
+     * @param string $type
+     * @param array $attributes
+     * @param boolean $overwrite
+     *
+     * @return Field\AbstractField
+     */
+    public function addField($field_name, $type = 'text', array $attributes = [], $overwrite = false): Field\AbstractField
+    {
+        $class = $this->_getFieldClass($type);
+
+        if (isset($this->fields[$field_name]) && !$overwrite) {
+            throw new \Exception(sprintf('Input type "%s" already exists.', $type));
+        }
+
+        $this->fields[$field_name] = new $class($field_name, $attributes);
+        return $this->fields[$field_name];
+    }
+
+    /**
+     * Find the appropriate class for the type specified.
+     *
+     * @param $type
+     * @return string
+     */
+    protected function _getFieldClass($type): string
+    {
+        if (class_exists($type)) {
+            return $type;
+        }
+
+        $field_type_lookup = [
+            'checkboxes'    => Field\Checkbox::class,
+            'multicheckbox' => Field\Checkbox::class,
+            'multiselect'   => Field\MultipleSelect::class,
+            'textarea'      => Field\TextArea::class,
+        ];
+
+        if (isset($field_type_lookup[$type])) {
+            return $field_type_lookup[$type];
+        }
+
+        if (!isset($class)) {
+            $namespace_options = [
+                "\\AzuraForms\\Field\\" . ucfirst($type),
+            ];
+
+            foreach ($namespace_options as $namespace_option) {
+                if (class_exists($namespace_option)) {
+                    return $namespace_option;
+                    break;
+                }
+            }
+        }
+
+        throw new \Exception(sprintf('Input type "%s" not found.', $type));
+    }
+
+    /**
+     * Check if a field exists
+     *
+     * @param string $field
+     * @return boolean
+     */
+    public function hasField($field): bool
+    {
+        return isset($this->fields[$field]);
+    }
+
+    /**
+     * Validate the submitted form.
+     *
+     * @param array|null $request
+     * @return bool
+     */
+    public function isValid(array $request = null): bool
+    {
+        if ($request === null) {
+            $request = (strtoupper($this->method) === self::METHOD_POST)
+                ? (array)$_POST
+                : (array)$_GET;
+        }
+
+        $file_data = $this->_fixFilesArray($_FILES ?? array());
+
+        if (empty($request)) {
+            return false;
+        }
+
+        // Validate individual fields using the class validator.
+        foreach ($this->fields as $key => $value) {
+            if (!$value->isValid($request[$key] ?? $file_data[$key] ?? '')) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
      * Fixes the odd indexing of multiple file uploads from the format:
-     *
      * $_FILES['field']['key']['index']
      *
      * To the more standard and appropriate:
-     *
      * $_FILES['field']['index']['key']
      *
      * @param array $files
@@ -451,13 +353,11 @@ class Form
         $names = array('name' => 1, 'type' => 1, 'tmp_name' => 1, 'error' => 1, 'size' => 1);
 
         foreach ($files as $key => $part) {
-            // only deal with valid keys and multiple files
             $key = (string) $key;
             if (isset($names[$key]) && is_array($part)) {
                 foreach ($part as $position => $value) {
                     $files[$position][$key] = $value;
                 }
-                // remove old key reference
                 unset($files[$key]);
             }
         }
@@ -466,155 +366,91 @@ class Form
     }
 
     /**
-     * Return the stored data for a field, running any filters if necessary.
-     *
-     * @param $key
-     * @param bool $raw     Apply filters to the returned data.
-     * @return bool|mixed
-     */
-    public function getData($key, $raw = false)
-    {
-        if (!$raw && isset($this->filters[$key]) && is_callable($this->filters[$key])) {
-            return $this->filters[$key]($this->data[$key] ?? false);
-        }
-
-        return $this->data[$key] ?? false;
-    }
-
-    /**
      * Render the entire form including submit button, errors, form tags etc
      *
      * @return string
      */
-    public function render()
+    public function render(): string
     {
-        $fields = '';
-        $error = $this->valid ? ''
-            : '<p class="error">Sorry there were some errors in the form, problem fields have been highlighted</p>';
-        $format = (object)$this->formats[$this->format];
-        $this->setToken();
+        $output = $this->openForm();
 
-        foreach ($this->fields as $key => $value) {
-            /** @var Field\AbstractField $value */
+        foreach($this->options['groups'] as $fieldset_id => $fieldset) {
+            if (!empty($fieldset['legend'])) {
+                $output .= sprintf('<fieldset id="%s" class="%s">',
+                    $fieldset_id,
+                    $fieldset['class'] ?? ''
+                );
+                $output .= '<legend>'.$fieldset['legend'].'</legend>';
 
-            $format = (object)$this->formats[$this->format];
-            $temp = isset($this->data[$key]) ? $value->returnField($this->name, $key, $this->data[$key])
-                : $value->returnField($this->name, $key);
-            $fields .= $format->open_field;
-            if ($temp['label']) {
-                $fields .= $format->open_html . $temp['label'] . $format->close_html;
-            }
-            if (isset($temp['messages'])) {
-                foreach ($temp['messages'] as $message) {
-                    if ($this->message_type === 'inline') {
-                        $fields .= "$format->open_html <p class=\"error\">$message</p> $format->close_html";
-                    } else {
-                        $this->setMessages($message, $key);
-                    }
-                    if (!$this->multiple_errors) {
-                        break;
-                    }
+                if (!empty($fieldset['description'])) {
+                    $output .= '<p>'.$fieldset['description'].'</p>';
                 }
             }
-            $fields .= $format->open_html . $temp['field'] . $format->close_html . $format->close_field;
+
+            foreach($fieldset['elements'] as $element_id => $element_info) {
+                if (!empty($element_info[1]['belongsTo']))
+                    $element_id = $element_info[1]['belongsTo'].'_'.$element_id;
+
+                if (isset($this->fields[$element_id])) {
+                    $field = $this->fields[$element_id];
+                    $output .= $field->render($this->name);
+                }
+            }
+
+            if (!empty($fieldset['legend'])) {
+                $output .= '</fieldset>';
+            }
         }
 
-        if (!empty($this->messages)) {
-            $this->buildMessages();
-        } else {
-            $this->messages = false;
+        $output .= $this->fields[self::CSRF_FIELD_NAME]->render($this->name);
+
+        $output .= $this->closeForm();
+        return $output;
+    }
+
+    /**
+     * Render the form in a presentation-only "view" mode, with no editable controls.
+     *
+     * @param bool $show_empty_fields
+     * @return string
+     */
+    public function renderView($show_empty_fields = false): string
+    {
+        $output = '';
+
+        foreach($this->options['groups'] as $fieldset_id => $fieldset) {
+            if (!empty($fieldset['legend'])) {
+                $output .= sprintf('<fieldset id="%s" class="%s">',
+                    $fieldset_id,
+                    $fieldset['class'] ?? ''
+                );
+                $output .= '<legend>'.$fieldset['legend'].'</legend>';
+
+                if (!empty($fieldset['description'])) {
+                    $output .= '<p>'.$fieldset['description'].'</p>';
+                }
+            }
+
+            $output .= '<dl>';
+
+            foreach($fieldset['elements'] as $element_id => $element_info) {
+                if (!empty($element_info[1]['belongsTo']))
+                    $element_id = $element_info[1]['belongsTo'].'_'.$element_id;
+
+                if (isset($this->fields[$element_id])) {
+                    $field = $this->fields[$element_id];
+                    $output .= $field->renderView($show_empty_fields);
+                }
+            }
+
+            $output .= '</dl>';
+
+            if (!empty($fieldset['legend'])) {
+                $output .= '</fieldset>';
+            }
         }
 
-        $attributes = $this->getFormAttributes();
-
-        return <<<FORM
-            $error
-            $this->messages
-            <form class="form" action="$this->action" method="$this->method" {$attributes['enctype']} {$attributes['html5']}>
-              $format->open_form
-                $format->open_form_body
-                  $fields
-                $format->close_form_body
-                $format->open_submit
-                  <input type="submit" name="submit" value="$this->submit_value" />
-                $format->close_submit
-              $format->close_form
-            </form>
-FORM;
-    }
-
-    /**
-     * Returns the HTML for a specific form field ususally in the form of input tags
-     *
-     * @param string $name
-     *
-     * @return string
-     */
-    public function renderField($name)
-    {
-        return $this->getFieldData($name, 'field');
-    }
-    
-    /**
-     * Returns the HTML for a specific form field's label
-     *
-     * @param string $name
-     *
-     * @return string
-     */
-    public function renderLabel($name)
-    {
-        return $this->getFieldData($name, 'label');
-    }
-
-    /**
-     * Returns the error string for a specific form field
-     *
-     * @param string $name
-     *
-     * @return string
-     */
-    public function renderError($name)
-    {
-        $error_string = '';
-        if (!is_array($this->getFieldData($name, 'messages'))) {
-            return false;
-        }
-        foreach ($this->getFieldData($name, 'messages') as $error) {
-            $error_string .= "<li>$error</li>";
-        }
-
-        return $error_string === '' ? false : "<ul>$error_string</ul>";
-    }
-
-    /**
-     * Returns the boolean depending on existance of errors for specified
-     * form field
-     *
-     * @param string $name
-     *
-     * @return boolean
-     */
-    public function hasError($name)
-    {
-        $errors = $this->getFieldData($name, 'messages');
-        return !(!$errors || !is_array($errors));
-    }
-
-    /**
-     * Returns the entire HTML structure for a form field
-     *
-     * @param string $name
-     *
-     * @return string
-     */
-    public function renderRow($name)
-    {
-        $row_string = $this->renderError($name);
-        $row_string .= $this->renderLabel($name);
-        $row_string .= $this->renderField($name);
-
-        return $row_string;
+        return $output;
     }
 
     /**
@@ -624,38 +460,15 @@ FORM;
      */
     public function renderHidden()
     {
-        $this->setToken();
         $fields = array();
-
         foreach ($this->fields as $name => $field) {
             if ($field instanceof Field\Hidden) {
-                if (isset($this->data[$name])) {
-                    $field_data = $field->returnField($this->name, $name, $this->data[$name]);
-                } else {
-                    $field_data = $field->returnField($this->name, $name);
-                }
-                $fields[] = $field_data['field'];
+                $fields[] = $field->getField($this->name);
             }
         }
+        $fields[] = $this->fields[self::CSRF_FIELD_NAME]->getField($this->name);
 
         return implode("\n", $fields);
-    }
-
-    /**
-     * Returns HTML string for all errors in the form
-     *
-     * @return string
-     */
-    public function renderErrors()
-    {
-        $error_string = '';
-        foreach ($this->fields as $name => $field) {
-            foreach ($this->getFieldData($name, 'messages') as $error) {
-                $error_string .= "<li>$error</li>\n";
-            }
-        }
-
-        return $error_string === '' ? false : "<ul>$error_string</ul>";
     }
 
     /**
@@ -665,9 +478,17 @@ FORM;
      */
     public function openForm()
     {
-        $attributes = $this->getFormAttributes();
+        $enctype = '';
+        foreach ($this->fields as $field) {
+            if ($field instanceof Field\File) {
+                $enctype = 'enctype="multipart/form-data"';
+            }
+        }
 
-        return "<form class=\"form\" action=\"$this->action\" method=\"$this->method\" {$attributes['enctype']} {$attributes['html5']}>";
+        return sprintf('<form class="form" action="%s" method="%s" %s>',
+            $this->action,
+            $this->method,
+            $enctype);
     }
 
     /**
@@ -679,115 +500,5 @@ FORM;
     {
         return "</form>";
     }
-
-    /**
-     * Check if a field exists
-     *
-     * @param string $field
-     *
-     * @return boolean
-     */
-    public function checkField($field)
-    {
-        return isset($this->fields->$field);
-    }
-
-    /**
-     * Get the attributes for the form tag
-     *
-     * @return array
-     */
-    protected function getFormAttributes()
-    {
-        $enctype = '';
-        foreach ($this->fields as $field) {
-            if ($field instanceof Field\File) {
-                $enctype = 'enctype="multipart/form-data"';
-            }
-        }
-        $html5 = $this->html5 ? '' : 'novalidate';
-
-        return array(
-            'enctype' => $enctype,
-            'html5' => $html5
-        );
-    }
-
-    /**
-     * Adds a message string to the class messages array
-     *
-     * @param string $message
-     * @param string $title
-     */
-    protected function setMessages($message, $title)
-    {
-        $title = str_replace("_", ' ', ucfirst($title));
-        if ($this->message_type === 'list') {
-            $this->messages[] = array('title' => $title, 'message' => ucfirst($message));
-        }
-    }
-
-    /**
-     * Sets the messages array as an HTML string
-     */
-    protected function buildMessages()
-    {
-        $messages = '<ul class="error">';
-        foreach ($this->messages as $message_array) {
-            $messages .= sprintf(
-                '<li>%s: %s</li>%s',
-                ucfirst(str_replace("_", ' ', $message_array['title'])),
-                ucfirst($message_array['message']),
-                "\n"
-            );
-        }
-        $this->messages = $messages . '</ul>';
-    }
-
-    /**
-     * Gets a specific field HTML string from the field class
-     *
-     * @param string $name
-     * @param string $key
-     *
-     * @return string
-     */
-    protected function getFieldData($name, $key)
-    {
-        if (!$this->checkField($name)) {
-            return false;
-        }
-
-        /** @var Field\AbstractField $field */
-        $field = $this->fields->$name;
-
-        if (isset($this->data[$name])) {
-            $field = $field->returnField($this->name, $name, $this->data[$name]);
-        } else {
-            $field = $field->returnField($this->name, $name);
-        }
-
-        return $field[$key];
-    }
-
-    /**
-     * Creates a new CRSF token
-     *
-     * @return string
-     */
-    protected function setToken()
-    {
-        if (!isset($_SESSION["nibble_forms"])) {
-            $_SESSION["nibble_forms"] = array();
-        }
-        if (!isset($_SESSION["nibble_forms"]["_crsf_token"])) {
-            $_SESSION["nibble_forms"]["_crsf_token"] = array();
-        }
-        $_SESSION["nibble_forms"]["_crsf_token"][$this->name] = Useful::randomString(20);
-
-        $this->addField("_crsf_token", "hidden");
-        $this->addData(array("_crsf_token" => $_SESSION["nibble_forms"]["_crsf_token"][$this->name]));
-    }
-
 }
 

@@ -3,10 +3,10 @@ namespace AzuraForms\Field;
 
 class Date extends Text
 {
-    public function __construct($label, array $attributes = array())
+    public function configure(array $config = [])
     {
-        parent::__construct($label, $attributes);
+        parent::configure($config);
 
-        $this->field_type = 'date';
+        $this->attributes['type'] = 'date';
     }
 }
