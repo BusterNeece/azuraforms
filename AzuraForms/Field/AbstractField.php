@@ -148,7 +148,7 @@ abstract class AbstractField
         if (!empty($this->filters)) {
             foreach($this->filters as $filter) {
                 /** @var callable $filter */
-                $value = $filter($value);
+                $value = $filter($value, $this);
             }
         }
 
@@ -267,7 +267,7 @@ abstract class AbstractField
         }
 
         foreach($this->validators as $validator) {
-            $validator_result = $validator($value);
+            $validator_result = $validator($value, $this);
 
             if ($validator_result !== true) {
                 $message = (is_string($validator_result)) ? $validator_result : 'Invalid value specified.';
