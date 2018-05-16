@@ -7,14 +7,16 @@ abstract class Options extends BaseOptions
     {
         parent::configure($config);
 
-        $this->validators[] = function($value) {
-            // Use array_keys to use the looser "in_array" check.
-            $choice_keys = array_keys($this->options['choices']);
-            if (in_array($value, $choice_keys)) {
-                return true;
+        $this->validators[] = function ($value) {
+            if ($this->options['required'] || !empty($value)) {
+                // Use array_keys to use the looser "in_array" check.
+                $choice_keys = array_keys($this->options['choices']);
+                if (!in_array($value, $choice_keys)) {
+                    return 'Choice is not one of the available options.';
+                }
             }
 
-            return 'Choice is not one of the available options.';
+            return true;
         };
     }
 
