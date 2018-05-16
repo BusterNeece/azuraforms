@@ -7,11 +7,11 @@ class Select extends Options
     {
         $field = sprintf('<select name="%1$s" id="%2$s_%1$s">', $this->name, $form_name);
         foreach ($this->options as $key => $val) {
-            $attributes = $this->_getAttributeString($val);
+            list($choice_val, $choice_attributes) = $this->_getAttributeString($val);
             $field .= sprintf('<option value="%s" %s>%s</option>',
                 $key,
-                ((string) $key === (string) $this->value ? 'selected="selected"' : '') . $attributes['string'],
-                $attributes['val']
+                ((string) $key === (string) $this->value ? 'selected="selected"' : '') . $choice_attributes,
+                $choice_val
             );
         }
         $field .= '</select>';
