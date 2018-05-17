@@ -478,6 +478,11 @@ class Form
      */
     public function openForm()
     {
+        $class = 'form';
+        if (isset($this->options['class'])) {
+            $class .= ' '.$this->options['class'];
+        }
+
         $enctype = '';
         foreach ($this->fields as $field) {
             if ($field instanceof Field\File) {
@@ -485,9 +490,10 @@ class Form
             }
         }
 
-        return sprintf('<form class="form" action="%s" method="%s" %s>',
+        return sprintf('<form class="form" action="%s" method="%s" class="%s" %s>',
             $this->action,
             $this->method,
+            $class,
             $enctype);
     }
 
