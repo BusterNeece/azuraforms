@@ -60,22 +60,22 @@ abstract class BaseOptions extends AbstractField
                     $key,
                     $this->_buildOptions($val, $selected)
                 );
+            } else {
+                list($choice_val, $choice_attributes) = $this->_getAttributeString($val);
+
+                $is_selected = false;
+                if ($selected) {
+                    $is_selected = (is_array($selected))
+                        ? in_array($key, $selected)
+                        : ((string)$key === (string)$selected);
+                }
+
+                $field .= sprintf('<option value="%s" %s>%s</option>',
+                    $key,
+                    ($is_selected ? 'selected="selected"' : '') . $choice_attributes,
+                    $choice_val
+                );
             }
-
-            list($choice_val, $choice_attributes) = $this->_getAttributeString($val);
-
-            $is_selected = false;
-            if ($selected) {
-                $is_selected = (is_array($selected))
-                    ? in_array($key, $selected)
-                    : ((string)$key === (string)$selected);
-            }
-
-            $field .= sprintf('<option value="%s" %s>%s</option>',
-                $key,
-                ($is_selected ? 'selected="selected"' : '') . $choice_attributes,
-                $choice_val
-            );
         }
 
         return $field;
