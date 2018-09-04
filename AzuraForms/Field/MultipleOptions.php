@@ -23,11 +23,12 @@ abstract class MultipleOptions extends BaseOptions
     public function getSelectedValue()
     {
         $selected = [];
+        $choices = $this->_getFlattenedChoices($this->options['choices']);
 
         if (is_array($this->value)) {
             foreach($this->value as $selected_key) {
-                if (isset($this->options['choices'][$selected_key])) {
-                    $selected[] = $this->options['choices'][$selected_key];
+                if (isset($choices[$selected_key])) {
+                    $selected[] = $choices[$selected_key];
                 }
             }
         }
@@ -44,9 +45,9 @@ abstract class MultipleOptions extends BaseOptions
         }
 
         if ($this->options['escape_choices']) {
-            $value = array_walk($value, function(&$choice) {
-                $choice = $this->escape($choice);
-            });
+            $value = array_map(function($choice) {
+                return $this->escape($choice);
+            }, $value);
         }
 
         $output = '';
