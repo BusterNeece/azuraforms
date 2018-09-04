@@ -10,7 +10,7 @@ class Url extends Text
         $this->attributes['type'] = 'url';
 
         $this->validators[] = function($value) {
-            if (!filter_var($value, \FILTER_VALIDATE_URL)) {
+            if (false === filter_var($value, \FILTER_VALIDATE_URL)) {
                 return 'Must be a valid URL.';
             }
             return true;

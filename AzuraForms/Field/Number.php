@@ -10,7 +10,7 @@ class Number extends Text
         $this->attributes['type'] = 'number';
 
         $this->validators[] = function($value) {
-            if (!filter_var($value, \FILTER_VALIDATE_FLOAT)) {
+            if (false === filter_var($value, \FILTER_VALIDATE_FLOAT)) {
                 return 'Must be numeric.';
             }
             return true;

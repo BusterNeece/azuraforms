@@ -38,8 +38,8 @@ class Text extends AbstractField
         foreach ($this->attributes as $attribute => $val) {
             if ($attribute == 'class') {
                 $class .= ' ' . $val;
-            } else {
-                $attribute_string .= $val ? ' ' . ($val === true ? $attribute : "$attribute=\"$val\"") : '';
+            } else if ($val !== false) {
+                $attribute_string .= ' '.($val === true ? $attribute : "$attribute=\"$val\"");
             }
         }
 
