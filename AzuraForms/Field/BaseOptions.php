@@ -34,16 +34,16 @@ abstract class BaseOptions extends AbstractField
 
     protected function _getFlattenedChoices(array $choices): array
     {
-        $choices = [];
+        $flattened = [];
         foreach($choices as $choice_key => $choice_val) {
             if (is_array($choice_val)) {
-                $choices = array_merge($choices, $this->_getFlattenedChoices($choice_val));
+                $flattened = array_merge($flattened, $this->_getFlattenedChoices($choice_val));
             } else {
-                $choices[$choice_key] = $choice_val;
+                $flattened[$choice_key] = $choice_val;
             }
         }
 
-        return $choices;
+        return $flattened;
     }
 
     protected function _buildOptions(array $choices, $selected = null): string
