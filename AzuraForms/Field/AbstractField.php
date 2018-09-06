@@ -138,6 +138,38 @@ abstract class AbstractField
     }
 
     /**
+     * Clear all existing validators.
+     */
+    public function clearValidators()
+    {
+        $this->validators = [];
+    }
+
+    /**
+     * @param callable $validator
+     */
+    public function addValidator(callable $validator)
+    {
+        $this->validators[] = $validator;
+    }
+
+    /**
+     * Clear all existing filters.
+     */
+    public function clearFilters()
+    {
+        $this->filters = [];
+    }
+
+    /**
+     * @param callable $filter
+     */
+    public function addFilter(callable $filter)
+    {
+        $this->filters[] = $filter;
+    }
+
+    /**
      * Apply any input filters that are present on this element.
      *
      * @param $value mixed

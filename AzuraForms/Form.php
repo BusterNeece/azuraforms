@@ -8,7 +8,7 @@
 
 namespace AzuraForms;
 
-class Form
+class Form implements \IteratorAggregate
 {
     public const DEFAULT_FORM_NAME = 'azuraforms_form';
     public const CSRF_FIELD_NAME = '_csrf';
@@ -47,6 +47,11 @@ class Form
         if ($defaults !== null) {
             $this->populate($defaults);
         }
+    }
+
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->fields);
     }
 
     /**
