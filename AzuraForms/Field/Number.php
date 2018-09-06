@@ -15,5 +15,15 @@ class Number extends Text
             }
             return true;
         };
+
+        $this->filters[] = function($value) {
+            $step = (string)($this->attributes['step'] ?? 1);
+
+            $decimals = ((int)$step == $step)
+                ? 0
+                : strlen($step) - strrpos($step, '.') - 1;
+
+            return round($value, $decimals);
+        };
     }
 }
