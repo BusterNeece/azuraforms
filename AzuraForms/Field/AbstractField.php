@@ -59,7 +59,7 @@ abstract class AbstractField
             'required' => false,
         ];
 
-        $option_names = ['label', 'required', 'choices', 'description'];
+        $option_names = ['label', 'label_class', 'required', 'choices', 'description'];
         foreach($option_names as $option_name) {
             if (isset($config[$option_name])) {
                 $this->options[$option_name] = $config[$option_name];
@@ -377,9 +377,10 @@ abstract class AbstractField
         }
 
         $required = $this->options['required'] ? '<span class="text-danger" title="Required">*</span>' : '';
-        return sprintf('<label for="%s_%s">%s %s</label>',
+        return sprintf('<label for="%s_%s" class="%s">%s %s</label>',
             $form_name,
             $this->name,
+            $this->options['label_class'] ?? '',
             $this->options['label'],
             $required
         );
