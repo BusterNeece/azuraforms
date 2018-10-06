@@ -7,7 +7,9 @@
     "homepage": "https://github.com/AzuraCast/azuraforms",
     "license": "MIT",
     "autoload": {
-        "psr-0": {"AzuraForms": ""}
+        "psr-4": {
+            "AzuraForms\\": "src/"
+        }
     },
     "authors": [
         {
