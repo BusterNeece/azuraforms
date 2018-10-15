@@ -332,13 +332,15 @@ class Form implements \IteratorAggregate
         }
 
         // Validate individual fields using the class validator.
+        $is_valid = true;
+
         foreach ($this->fields as $key => $value) {
             if (!$value->isValid($request[$key] ?? $file_data[$key] ?? '')) {
-                return false;
+                $is_valid = false;
             }
         }
 
-        return true;
+        return $is_valid;
     }
 
     /**
