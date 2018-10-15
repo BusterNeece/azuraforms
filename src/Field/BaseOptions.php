@@ -64,7 +64,7 @@ abstract class BaseOptions extends AbstractField
                 list($choice_val, $choice_attributes) = $this->_getAttributeString($val);
 
                 $is_selected = false;
-                if ($selected) {
+                if (null !== $selected) {
                     $is_selected = (is_array($selected))
                         ? in_array($key, $selected)
                         : ((string)$key === (string)$selected);
