@@ -7,10 +7,19 @@ class Button extends Text
     {
         parent::configure($config);
 
-        $this->setValue($this->options['label']);
+        $this->value = $this->options['label'];
         unset($this->options['label']);
 
         $this->attributes['type'] = 'button';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setValue($new_value)
+    {
+        // Don't allow the resetting of a submit value.
+        return;
     }
 
     public function getValue()
