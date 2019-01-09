@@ -11,7 +11,7 @@ abstract class AbstractField
     /** @var string The element name in the form. */
     protected $name;
 
-    /** @var string The group the element is associated with (if any). */
+    /** @var string|null The group the element is associated with (if any). */
     protected $group;
 
     /**
@@ -138,9 +138,9 @@ abstract class AbstractField
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getGroup(): string
+    public function getGroup(): ?string
     {
         return $this->group;
     }
@@ -164,7 +164,7 @@ abstract class AbstractField
     /**
      * Clear all existing validators.
      */
-    public function clearValidators()
+    public function clearValidators(): void
     {
         $this->validators = [];
     }
@@ -172,7 +172,7 @@ abstract class AbstractField
     /**
      * @param callable $validator
      */
-    public function addValidator(callable $validator)
+    public function addValidator(callable $validator): void
     {
         $this->validators[] = $validator;
     }
@@ -180,7 +180,7 @@ abstract class AbstractField
     /**
      * Clear all existing filters.
      */
-    public function clearFilters()
+    public function clearFilters(): void
     {
         $this->filters = [];
     }
@@ -188,7 +188,7 @@ abstract class AbstractField
     /**
      * @param callable $filter
      */
-    public function addFilter(callable $filter)
+    public function addFilter(callable $filter): void
     {
         $this->filters[] = $filter;
     }
@@ -205,7 +205,7 @@ abstract class AbstractField
      * @param $key
      * @param $value
      */
-    public function setOption($key, $value)
+    public function setOption($key, $value): void
     {
         $this->options[$key] = $value;
     }
@@ -222,7 +222,7 @@ abstract class AbstractField
      * @param $key
      * @param $value
      */
-    public function setAttribute($key, $value)
+    public function setAttribute($key, $value): void
     {
         $this->attributes[$key] = $value;
     }
@@ -270,7 +270,7 @@ abstract class AbstractField
      *
      * @param $body
      */
-    public function addError($body)
+    public function addError($body): void
     {
         $this->errors[] = $body;
     }
@@ -324,6 +324,7 @@ abstract class AbstractField
     /**
      * Check the currently set value for validity.
      *
+     * @param null $new_value
      * @return bool
      */
     public function isValid($new_value = null): bool
@@ -345,11 +346,9 @@ abstract class AbstractField
     {
         $this->errors = [];
 
-        if ($this->options['required']) {
-            if ($this->_isEmpty($value)) {
-                $this->errors[] = 'This field is required.';
-                return false;
-            }
+        if ($this->options['required'] && $this->_isEmpty($value)) {
+            $this->errors[] = 'This field is required.';
+            return false;
         }
 
         if (empty($this->validators)) {
@@ -377,7 +376,7 @@ abstract class AbstractField
      */
     protected function _isEmpty($value): bool
     {
-        return (empty($value));
+        return empty($value);
     }
 
     /**

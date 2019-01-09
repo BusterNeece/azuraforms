@@ -204,6 +204,20 @@ abstract class AbstractForm implements \IteratorAggregate
     }
 
     /**
+     * Return the stored data for an individual field.
+     *
+     * @param $key
+     * @return null|mixed
+     */
+    public function getValue($key)
+    {
+        if (isset($this->fields[$key])) {
+            return $this->fields[$key]->getValue();
+        }
+        return null;
+    }
+
+    /**
      * Find the appropriate class for the type specified.
      *
      * @param $type

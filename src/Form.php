@@ -105,20 +105,6 @@ class Form extends AbstractForm
     }
 
     /**
-     * Return the stored data for an individual field.
-     *
-     * @param $key
-     * @return null|mixed
-     */
-    public function getValue($key)
-    {
-        if (isset($this->fields[$key])) {
-            return $this->fields[$key]->getValue();
-        }
-        return null;
-    }
-
-    /**
      * Validate the submitted form.
      *
      * @param array|null $request
