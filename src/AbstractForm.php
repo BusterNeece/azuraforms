@@ -78,17 +78,17 @@ abstract class AbstractForm implements \IteratorAggregate
      */
     public function addField($field_name, $type = 'text', array $attributes = [], $group = null, $overwrite = false): string
     {
-        if (isset($this->fields[$field_name]) && !$overwrite) {
-            throw new Exception\FieldAlreadyExists(sprintf('Input type "%s" already exists.', $type));
-        }
-
         $class = $this->_getFieldClass($type);
 
         /** @var Field\AbstractField $field */
         $field = new $class($this, $field_name, $attributes, $group);
         $full_field_name = $field->getFullName();
 
-        $this->fields[$field_name] = $field;
+        if (isset($this->fields[$full_field_name]) && !$overwrite) {
+            throw new Exception\FieldAlreadyExists(sprintf('Field with name "%s" already exists.', $full_field_name));
+        }
+
+        $this->fields[$full_field_name] = $field;
 
         if (null !== $group) {
             $this->groups[$group][] = $full_field_name;
