@@ -3,7 +3,7 @@ namespace AzuraForms\Field;
 
 class Time extends Text
 {
-    public function configure(array $config = [])
+    public function configure(array $config = []): void
     {
         parent::configure($config);
 

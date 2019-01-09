@@ -8,22 +8,12 @@
 
 namespace AzuraForms;
 
-class Form implements \IteratorAggregate
+class Form extends AbstractForm
 {
-    public const DEFAULT_FORM_NAME = 'azuraforms_form';
     public const CSRF_FIELD_NAME = '_csrf';
 
     public const METHOD_POST = 'POST';
     public const METHOD_GET = 'GET';
-
-    /** @var array The form's configuration options. */
-    protected $options;
-
-    /** @var array An array of "belongsTo" lookup groups (for processing data). */
-    protected $groups;
-
-    /** @var Field\AbstractField[] */
-    protected $fields;
 
     /** @var string The form's "action" attribute. */
     protected $action = '';
@@ -31,47 +21,27 @@ class Form implements \IteratorAggregate
     /** @var string The form's submission method (GET or POST). */
     protected $method = self::METHOD_POST;
 
-    /** @var string The form name, used in the <form> tag and in general. */
-    protected $name = self::DEFAULT_FORM_NAME;
-
     /**
-     * Form constructor.
-     *
      * @param array $options
      * @param array|null $defaults
+     * @throws Exception\FieldAlreadyExists
+     * @throws Exception\FieldClassNotFound
      */
-    public function __construct(array $options = [], array $defaults = null)
+    public function __construct(array $options = [], ?array $defaults = null)
     {
-        $this->configure($options);
+        parent::__construct($options);
 
         if ($defaults !== null) {
             $this->populate($defaults);
         }
     }
 
-    public function getIterator()
-    {
-        return new \ArrayIterator($this->fields);
-    }
-
     /**
-     * Set the name of the form
-     *
-     * @param string $name
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * Get form name
-     *
      * @return string
      */
-    public function getName()
+    public function getAction(): string
     {
-        return $this->name;
+        return $this->action;
     }
 
     /**
@@ -79,92 +49,32 @@ class Form implements \IteratorAggregate
      *
      * @return string
      */
-    public function getMethod()
+    public function getMethod(): string
     {
         return $this->method;
     }
 
     /**
-     * Get the cleaned-up flatfile configuration for this form.
-     *
-     * @return array
+     * @inheritdoc
      */
-    public function getOptions()
+    public function configure(array $options): void
     {
-        return $this->options;
-    }
-
-    /**
-     * Retrieve an already added field.
-     *
-     * @param $key
-     * @return mixed
-     */
-    public function getField($key)
-    {
-        if (isset($this->fields[$key])) {
-            return $this->fields[$key];
-        }
-
-        throw new \Exception(sprintf('Field name "%s" not found.', $key));
-    }
-
-    /**
-     * Iterate through configuration options and set up each individual form element.
-     *
-     * @param array $options
-     */
-    public function configure(array $options)
-    {
-        $this->name = $options['name'] ?: 'app_form';
-        $this->action = $options['action'] ?: '';
-
-        $this->fields = [];
         $this->groups = [];
 
-        if (empty($options['groups'])) {
-            $options['groups'] = [];
+        parent::configure($options);
+
+        if (isset($options['action'])) {
+            $this->action = $options['action'];
         }
 
-        if (!empty($options['elements'])) {
-            $options['groups'][] = ['elements' => $options['elements']];
-            unset($options['elements']);
+        if (isset($options['method'])) {
+            $this->method = $options['method'];
         }
-
-        foreach ($options['groups'] as $group_id => $group_info) {
-            foreach ($group_info['elements'] as $element_name => $element_info) {
-                $this->_configureElement($element_name, $element_info);
-            }
-        }
-
-        $this->options = $options;
 
         // Add CSRF field
         $this->addField(self::CSRF_FIELD_NAME, Field\Csrf::class, [
             'csrf_key' => $this->name,
         ]);
-    }
-
-    /**
-     * Load a form element's configuration and instantiate it as an object.
-     *
-     * @param $element_name
-     * @param $element_info
-     */
-    protected function _configureElement($element_name, $element_info): void
-    {
-        $field_type = strtolower($element_info[0]);
-        $field_options = (array)$element_info[1];
-
-        if (!empty($field_options['belongsTo'])) {
-            $group = $field_options['belongsTo'];
-            $this->groups[$group][] = $element_name;
-
-            $element_name = $group . '_' . $element_name;
-            unset($field_options['belongsTo']);
-        }
-
-        $this->addField($element_name, $field_type, $field_options);
     }
 
     /**
@@ -199,24 +109,26 @@ class Form implements \IteratorAggregate
      *
      * @return array
      */
-    public function getValues()
+    public function getValues(): array
     {
         $values = [];
 
         foreach ($this->options['groups'] as $fieldset) {
             foreach ($fieldset['elements'] as $element_id => $element_info) {
-                if (!empty($element_info[1]['belongsTo'])) {
-                    $group = $element_info[1]['belongsTo'];
-                    $value = $this->getValue($group . '_' . $element_id);
+                if (isset($this->fields[$element_id])) {
+                    $field = $this->fields[$element_id];
+
+                    $value = $field->getValue();
 
                     if ($value !== null) {
-                        $values[$group][$element_id] = $value;
-                    }
-                } else {
-                    $value = $this->getValue($element_id);
+                        $name = $field->getName();
+                        $group = $field->getGroup();
 
-                    if ($value !== null) {
-                        $values[$element_id] = $value;
+                        if (null !== $group) {
+                            $values[$group][$name] = $value;
+                        } else {
+                            $values[$name] = $value;
+                        }
                     }
                 }
             }
@@ -237,78 +149,6 @@ class Form implements \IteratorAggregate
             return $this->fields[$key]->getValue();
         }
         return null;
-    }
-
-    /**
-     * Add a field to the form instance
-     *
-     * @param string $field_name
-     * @param string $type
-     * @param array $attributes
-     * @param boolean $overwrite
-     *
-     * @return Field\AbstractField
-     */
-    public function addField($field_name, $type = 'text', array $attributes = [], $overwrite = false): Field\AbstractField
-    {
-        $class = $this->_getFieldClass($type);
-
-        if (isset($this->fields[$field_name]) && !$overwrite) {
-            throw new \Exception(sprintf('Input type "%s" already exists.', $type));
-        }
-
-        $this->fields[$field_name] = new $class($this, $field_name, $attributes);
-        return $this->fields[$field_name];
-    }
-
-    /**
-     * Find the appropriate class for the type specified.
-     *
-     * @param $type
-     * @return string
-     */
-    protected function _getFieldClass($type): string
-    {
-        if (class_exists($type)) {
-            return $type;
-        }
-
-        $field_type_lookup = [
-            'checkboxes'    => Field\Checkbox::class,
-            'multicheckbox' => Field\Checkbox::class,
-            'multiselect'   => Field\MultipleSelect::class,
-            'textarea'      => Field\TextArea::class,
-        ];
-
-        if (isset($field_type_lookup[$type])) {
-            return $field_type_lookup[$type];
-        }
-
-        if (!isset($class)) {
-            $namespace_options = [
-                "\\AzuraForms\\Field\\" . ucfirst($type),
-            ];
-
-            foreach ($namespace_options as $namespace_option) {
-                if (class_exists($namespace_option)) {
-                    return $namespace_option;
-                    break;
-                }
-            }
-        }
-
-        throw new \Exception(sprintf('Input type "%s" not found.', $type));
-    }
-
-    /**
-     * Check if a field exists
-     *
-     * @param string $field
-     * @return boolean
-     */
-    public function hasField($field): bool
-    {
-        return isset($this->fields[$field]);
     }
 
     /**
@@ -355,7 +195,7 @@ class Form implements \IteratorAggregate
      * @author Corey Ballou
      * @link http://www.jqueryin.com
      */
-    protected function _fixFilesArray($files)
+    protected function _fixFilesArray($files): array
     {
         $names = array('name' => 1, 'type' => 1, 'tmp_name' => 1, 'error' => 1, 'size' => 1);
 
@@ -373,53 +213,7 @@ class Form implements \IteratorAggregate
     }
 
     /**
-     * Render the entire form including submit button, errors, form tags etc
-     *
-     * @return string
-     */
-    public function render(): string
-    {
-        $output = $this->openForm();
-
-        foreach($this->options['groups'] as $fieldset_id => $fieldset) {
-            if (!empty($fieldset['legend'])) {
-                $output .= sprintf('<fieldset id="%s" class="%s">',
-                    $fieldset_id,
-                    $fieldset['class'] ?? ''
-                );
-                $output .= '<legend>'.$fieldset['legend'].'</legend>';
-
-                if (!empty($fieldset['description'])) {
-                    $output .= '<p>'.$fieldset['description'].'</p>';
-                }
-            }
-
-            foreach($fieldset['elements'] as $element_id => $element_info) {
-                if (!empty($element_info[1]['belongsTo']))
-                    $element_id = $element_info[1]['belongsTo'].'_'.$element_id;
-
-                if (isset($this->fields[$element_id])) {
-                    $field = $this->fields[$element_id];
-                    $output .= $field->render($this->name);
-                }
-            }
-
-            if (!empty($fieldset['legend'])) {
-                $output .= '</fieldset>';
-            }
-        }
-
-        $output .= $this->fields[self::CSRF_FIELD_NAME]->render($this->name);
-
-        $output .= $this->closeForm();
-        return $output;
-    }
-
-    /**
-     * Render the form in a presentation-only "view" mode, with no editable controls.
-     *
-     * @param bool $show_empty_fields
-     * @return string
+     * @inheritdoc
      */
     public function renderView($show_empty_fields = false): string
     {
@@ -461,11 +255,9 @@ class Form implements \IteratorAggregate
     }
 
     /**
-     * Returns HTML for all hidden fields including crsf protection
-     *
-     * @return string
+     * @inheritdoc
      */
-    public function renderHidden()
+    public function renderHidden(): string
     {
         $fields = array();
         foreach ($this->fields as $name => $field) {
@@ -479,11 +271,9 @@ class Form implements \IteratorAggregate
     }
 
     /**
-     * Returns the HTML string for opening a form with the correct enctype, action and method
-     *
-     * @return string
+     * @inheritdoc
      */
-    public function openForm()
+    public function openForm(): string
     {
         $class = 'form';
         if (isset($this->options['class'])) {
@@ -497,21 +287,12 @@ class Form implements \IteratorAggregate
             }
         }
 
-        return sprintf('<form class="form" action="%s" method="%s" class="%s" %s>',
+        return sprintf('<form id="%s" action="%s" method="%s" class="%s" %s>',
+            $this->name,
             $this->action,
             $this->method,
             $class,
             $enctype);
-    }
-
-    /**
-     * Return close form tag
-     *
-     * @return string
-     */
-    public function closeForm()
-    {
-        return "</form>";
     }
 }
 

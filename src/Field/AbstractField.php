@@ -11,6 +11,9 @@ abstract class AbstractField
     /** @var string The element name in the form. */
     protected $name;
 
+    /** @var string The group the element is associated with (if any). */
+    protected $group;
+
     /**
      * @var array The options associated with the field. These are internal configuration values
      * that are not printed out directly as arrays, potentially including:
@@ -36,16 +39,17 @@ abstract class AbstractField
     protected $validators = [];
 
     /**
-     * AbstractField constructor.
-     *
      * @param AzuraForms\Form $form
      * @param $element_name
      * @param array $config
+     * @param null $group
      */
-    public function __construct(\AzuraForms\Form $form, $element_name, array $config = [])
+    public function __construct(AzuraForms\Form $form, $element_name, array $config = [], $group = null)
     {
         $this->form = $form;
         $this->name = $element_name;
+        $this->group = $group;
+
         $this->configure($config);
     }
 
@@ -53,7 +57,7 @@ abstract class AbstractField
      * Configure the field using the specified flat configuration.
      * @param array $config
      */
-    public function configure(array $config = [])
+    public function configure(array $config = []): void
     {
         $this->options = [
             'required' => false,
@@ -116,9 +120,29 @@ abstract class AbstractField
     /**
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * Return the full element name, including element prefixes.
+     *
+     * @return string
+     */
+    public function getFullName(): string
+    {
+        return (null !== $this->group)
+            ? $this->group.'_'.$this->name
+            : $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getGroup(): string
+    {
+        return $this->group;
     }
 
     /**
@@ -132,7 +156,7 @@ abstract class AbstractField
     /**
      * @param $new_value mixed
      */
-    public function setValue($new_value)
+    public function setValue($new_value): void
     {
         $this->value = $this->_filterValue($new_value);
     }

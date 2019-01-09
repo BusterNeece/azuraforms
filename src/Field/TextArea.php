@@ -3,7 +3,7 @@ namespace AzuraForms\Field;
 
 class TextArea extends Text
 {
-    public function configure(array $config = [])
+    public function configure(array $config = []): void
     {
         parent::configure($config);
 
@@ -21,7 +21,7 @@ class TextArea extends Text
         list($attribute_string, $class) = $this->_attributeString();
 
         return sprintf('<textarea name="%1$s" id="%5$s_%1$s" class="%2$s" %4$s>%3$s</textarea>',
-            $this->name,
+            $this->getFullName(),
             $class,
             $this->escape($this->value),
             $attribute_string,

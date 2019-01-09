@@ -3,7 +3,7 @@ namespace AzuraForms\Field;
 
 class Text extends AbstractField
 {
-    public function configure(array $config = [])
+    public function configure(array $config = []): void
     {
         parent::configure($config);
 
@@ -18,7 +18,7 @@ class Text extends AbstractField
 
         return sprintf('<input type="%1$s" name="%2$s" id="%6$s_%2$s" value="%3$s" %4$s class="%5$s" />',
             $this->attributes['type'],
-            $this->name,
+            $this->getFullName(),
             $this->escape($this->value),
             $attribute_string,
             $class,

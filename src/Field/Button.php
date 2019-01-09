@@ -3,7 +3,7 @@ namespace AzuraForms\Field;
 
 class Button extends Text
 {
-    public function configure(array $config = [])
+    public function configure(array $config = []): void
     {
         parent::configure($config);
 
@@ -16,7 +16,7 @@ class Button extends Text
     /**
      * @inheritdoc
      */
-    public function setValue($new_value)
+    public function setValue($new_value): void
     {
         // Don't allow the resetting of a submit value.
         return;

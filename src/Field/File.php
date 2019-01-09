@@ -36,7 +36,7 @@ class File extends AbstractField
         'custom' => 'File is invalid.'
     ];
 
-    public function configure(array $config = [])
+    public function configure(array $config = []): void
     {
         parent::configure($config);
 
@@ -65,7 +65,7 @@ class File extends AbstractField
     public function getField($form_name): ?string
     {
         return sprintf('<input type="file" name="%1$s" id="%2$s_%1$s"/>',
-            $this->name,
+            $this->getFullName(),
             $form_name
         );
     }

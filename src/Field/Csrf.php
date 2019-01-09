@@ -5,7 +5,7 @@ class Csrf extends Hidden
 {
     public const SESSION_NAMESPACE = 'azuraforms_csrf';
 
-    public function configure(array $config = [])
+    public function configure(array $config = []): void
     {
         parent::configure($config);
 

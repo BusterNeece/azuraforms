@@ -3,7 +3,7 @@ namespace AzuraForms\Field;
 
 abstract class BaseOptions extends AbstractField
 {
-    public function configure(array $config = [])
+    public function configure(array $config = []): void
     {
         parent::configure($config);
 
