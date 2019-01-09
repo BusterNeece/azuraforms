@@ -171,6 +171,39 @@ abstract class AbstractForm implements \IteratorAggregate
     }
 
     /**
+     * Retrieve all of the current values set on the form.
+     *
+     * @return array
+     */
+    public function getValues(): array
+    {
+        $values = [];
+
+        foreach ($this->options['groups'] as $fieldset) {
+            foreach ($fieldset['elements'] as $element_id => $element_info) {
+                if (isset($this->fields[$element_id])) {
+                    $field = $this->fields[$element_id];
+
+                    $value = $field->getValue();
+
+                    if ($value !== null) {
+                        $name = $field->getName();
+                        $group = $field->getGroup();
+
+                        if (null !== $group) {
+                            $values[$group][$name] = $value;
+                        } else {
+                            $values[$name] = $value;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $values;
+    }
+
+    /**
      * Find the appropriate class for the type specified.
      *
      * @param $type
