@@ -1,11 +1,15 @@
 git:
   depth: 1
+
 env:
   DOCKER_COMPOSE_VERSION: 1.19.0
+
 sudo: required
 dist: trusty
+
 services:
 - docker
+
 before_install:
 - sudo apt-get update
 - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
@@ -14,8 +18,10 @@ before_install:
   -s`-`uname -m` > docker-compose
 - chmod +x docker-compose
 - sudo mv docker-compose /usr/local/bin
+
 script:
 - docker-compose run --rm cli composer test
+
 notifications:
   slack:
     secure: FUQ9wzK5DAA4K3cYYh3edYPnI5tUjw824FxS1QCLKzLJIjMNLV2H2XL9maPQWwU/s1LIcQRlkDeDFRkMp8KZcUmsOh1+GT0owKZMdgDKtRKpt03x3lCZ6PA3aOZ/Mi25nI66srLxf9WfHWbR1b1jD3UuxDprSo7E9Z9TdL5GV12O4V4lvoBhMm2UlJ37gaQ/9DkeD4tTjeHM9JKCov3vKN+N0socb1415IDcrB7vu2Q5hOk8GDPMoEOB5s2ZITC5FV84XDHCKe/0tuvtmUKou9UT37K+9ycpm4SKyUg2IZTWfZRWsXE5HGC1E/yJhMZUOFtZ3N0qopWLbrQWyWkD3Ivk9rIvt80LxerL07ns3dInoziKmqgPYJjeOTXWHVUQP/Jb/NMVgvODMUAzzDjw75axuSWlVJyqC4naDkj9FcB7I7HVtmn2ta0uCVkx8U+M00DDm9SX2jWtgPoEFLSwE0UIoW6u2Br0zxTHnGAq1D42VjOyccqpUAccp7n2OIFGc5YSQFL1qwEBR40YO1zpBcly40Ssm3r+2UsnN8RvqRQ1eOmEoYuhbCTUJ78wRm7wIuzx7gaXu+cuCHuE4slMkaayyFLa8sC9Sh73eZkmgPliV/jZko5fdCpj7YQshhfDzEeZH52Jlo5djKAVMc6YDhF7zX/QVOGbdJNqp2L4kaA=
