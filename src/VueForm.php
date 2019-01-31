@@ -78,7 +78,7 @@ class VueForm extends AbstractForm
     }
 
     /**
-     * @param $field_name
+     * @param string $field_name
      * @param null $group
      * @return string
      */

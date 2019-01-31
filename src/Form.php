@@ -80,7 +80,7 @@ class Form extends AbstractForm
     /**
      * Set the already-filled data for this form.
      *
-     * @param $data
+     * @param array $data
      */
     public function populate($data)
     {

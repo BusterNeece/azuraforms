@@ -29,7 +29,7 @@ class Recaptcha extends AbstractField
     {
         $field = <<<FIELD
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>';
-<div class="g-recaptcha" data-sitekey="%S" data-theme="dark"></div>
+<div class="g-recaptcha" data-sitekey="%s" data-theme="dark"></div>
 FIELD;
 
         return sprintf($field, $this->attributes['public_key']);

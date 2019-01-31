@@ -40,7 +40,7 @@ abstract class AbstractField
 
     /**
      * @param AzuraForms\Form $form
-     * @param $element_name
+     * @param string $element_name
      * @param array $config
      * @param null $group
      */
@@ -154,7 +154,7 @@ abstract class AbstractField
     }
 
     /**
-     * @param $new_value mixed
+     * @param mixed $new_value
      */
     public function setValue($new_value): void
     {
@@ -202,8 +202,8 @@ abstract class AbstractField
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param string $key
+     * @param mixed $value
      */
     public function setOption($key, $value): void
     {
@@ -219,8 +219,8 @@ abstract class AbstractField
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param string $key
+     * @param mixed $value
      */
     public function setAttribute($key, $value): void
     {
@@ -230,7 +230,7 @@ abstract class AbstractField
     /**
      * Apply any input filters that are present on this element.
      *
-     * @param $value mixed
+     * @param mixed $value
      * @return mixed
      */
     protected function _filterValue($value)
@@ -268,7 +268,7 @@ abstract class AbstractField
     /**
      * Append a new error to the error log.
      *
-     * @param $body
+     * @param mixed $body
      */
     public function addError($body): void
     {
@@ -278,7 +278,7 @@ abstract class AbstractField
     /**
      * Return an editable form control for this field.
      *
-     * @param $form_name
+     * @param string $form_name
      * @return string The rendered form element.
      */
     public function render($form_name): string
@@ -339,7 +339,7 @@ abstract class AbstractField
     /**
      * Internal handler to loop through validators (and handle required fields).
      *
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     protected function _validateValue($value): bool
@@ -371,7 +371,7 @@ abstract class AbstractField
     /**
      * Allow individual elements to change what the "is empty" criteria are for required fields.
      *
-     * @param $value
+     * @param mixed $value
      * @return bool
      */
     protected function _isEmpty($value): bool
@@ -382,7 +382,7 @@ abstract class AbstractField
     /**
      * Return the field body HTML for this element.
      *
-     * @param $form_name string
+     * @param string $form_name
      * @return null|string
      */
     abstract public function getField($form_name): ?string;
@@ -390,7 +390,7 @@ abstract class AbstractField
     /**
      * Return the label HTML for this element.
      *
-     * @param $form_name string
+     * @param string $form_name
      * @return null|string
      */
     public function getLabel($form_name): ?string
@@ -412,7 +412,7 @@ abstract class AbstractField
     /**
      * Escape a potentially user-supplied value prior to display.
      *
-     * @param $string
+     * @param string $string
      * @return string
      */
     protected function escape($string): string

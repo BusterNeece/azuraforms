@@ -40,7 +40,7 @@ abstract class AbstractForm implements \IteratorAggregate
     /**
      * Retrieve an already added field.
      *
-     * @param $key
+     * @param string $key
      * @return Field\AbstractField
      * @throws Exception\FieldNotFound
      */
@@ -67,7 +67,7 @@ abstract class AbstractForm implements \IteratorAggregate
     /**
      * Add a field to the form instance.
      *
-     * @param $field_name
+     * @param string $field_name
      * @param string $type
      * @param array $attributes
      * @param null $group
@@ -206,7 +206,7 @@ abstract class AbstractForm implements \IteratorAggregate
     /**
      * Return the stored data for an individual field.
      *
-     * @param $key
+     * @param string $key
      * @return null|mixed
      */
     public function getValue($key)
@@ -220,7 +220,7 @@ abstract class AbstractForm implements \IteratorAggregate
     /**
      * Find the appropriate class for the type specified.
      *
-     * @param $type
+     * @param string $type
      * @return string
      * @throws Exception\FieldClassNotFound
      */
