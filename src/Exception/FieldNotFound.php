@@ -1,5 +1,5 @@
 <?php
 namespace AzuraForms\Exception;
 
-class FieldNotFound extends \Exception
+final class FieldNotFound extends \Exception
 {}

@@ -1,7 +1,7 @@
 <?php
 namespace AzuraForms;
 
-class VueForm extends AbstractForm
+final class VueForm extends AbstractForm
 {
     public function addField(
         $field_name,

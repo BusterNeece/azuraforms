@@ -1,5 +1,5 @@
 <?php
 namespace AzuraForms\Exception;
 
-class FieldAlreadyExists extends \Exception
+final class FieldAlreadyExists extends \Exception
 {}

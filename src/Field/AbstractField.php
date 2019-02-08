@@ -3,7 +3,7 @@ namespace AzuraForms\Field;
 
 use AzuraForms;
 
-abstract class AbstractField
+abstract class AbstractField implements FieldInterface
 {
     /** @var AzuraForms\Form The parent form that contains this field, used for enhanced validation. */
     protected $form;
@@ -53,10 +53,6 @@ abstract class AbstractField
         $this->configure($config);
     }
 
-    /**
-     * Configure the field using the specified flat configuration.
-     * @param array $config
-     */
     public function configure(array $config = []): void
     {
         $this->options = [
@@ -109,27 +105,16 @@ abstract class AbstractField
         $this->attributes = $config;
     }
 
-    /**
-     * @return AzuraForms\Form
-     */
     public function getForm(): AzuraForms\Form
     {
         return $this->form;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * Return the full element name, including element prefixes.
-     *
-     * @return string
-     */
     public function getFullName(): string
     {
         return (null !== $this->group)

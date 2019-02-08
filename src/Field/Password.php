@@ -1,7 +1,7 @@
 <?php
 namespace AzuraForms\Field;
 
-class Password extends Text
+final class Password extends Text
 {
     public function configure(array $config = []): void
     {

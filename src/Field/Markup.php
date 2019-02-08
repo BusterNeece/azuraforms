@@ -4,7 +4,7 @@ namespace AzuraForms\Field;
 /**
  * A generic "markup" field for including inline HTML in a form.
  */
-class Markup extends AbstractField
+final class Markup extends AbstractField
 {
     public function getValue()
     {

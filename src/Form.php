@@ -8,7 +8,7 @@
 
 namespace AzuraForms;
 
-class Form extends AbstractForm
+final class Form extends AbstractForm
 {
     public const CSRF_FIELD_NAME = '_csrf';
 

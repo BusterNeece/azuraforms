@@ -1,7 +1,7 @@
 <?php
 namespace AzuraForms;
 
-abstract class AbstractForm implements \IteratorAggregate
+abstract class AbstractForm implements FormInterface
 {
     public const DEFAULT_FORM_NAME = 'azuraforms_form';
 
@@ -41,10 +41,10 @@ abstract class AbstractForm implements \IteratorAggregate
      * Retrieve an already added field.
      *
      * @param string $key
-     * @return Field\AbstractField
+     * @return Field\FieldInterface
      * @throws Exception\FieldNotFound
      */
-    public function getField($key): Field\AbstractField
+    public function getField($key): Field\FieldInterface
     {
         if (isset($this->fields[$key])) {
             return $this->fields[$key];

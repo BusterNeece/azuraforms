@@ -1,7 +1,7 @@
 <?php
 namespace AzuraForms\Field;
 
-class Radio extends Options
+final class Radio extends Options
 {
     public function setValue($new_value): void
     {
