@@ -5,10 +5,6 @@ final class Checkbox extends MultipleOptions
 {
     public function setValue($new_value): void
     {
-        if ($new_value === '') {
-            $new_value = '0';
-        }
-
         parent::setValue($new_value);
     }
 
