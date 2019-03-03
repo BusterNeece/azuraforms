@@ -26,6 +26,7 @@ final class Toggle extends BaseOptions
         }
 
         return sprintf(
+            '<input type="hidden" name="%1$s" value="0" />' .
             '<input type="checkbox" name="%1$s" id="%5$s_%1$s" value="1" %2$s class="%4$s" />' .
             '<label for="%5$s_%1$s">%3$s</label>',
             $this->getFullName(),
