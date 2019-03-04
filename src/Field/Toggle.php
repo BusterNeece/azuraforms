@@ -5,6 +5,8 @@ final class Toggle extends BaseOptions
 {
     public function configure(array $config = []): void
     {
+        unset($config['required']);
+
         parent::configure($config);
 
         $this->options['selected_text'] = $this->attributes['selected_text'] ?? 'Yes';
