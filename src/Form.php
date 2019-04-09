@@ -21,9 +21,6 @@ class Form extends AbstractForm
     /** @var string The form's submission method (GET or POST). */
     protected $method = self::METHOD_POST;
 
-    /** @var array */
-    protected $errors = [];
-
     /**
      * @param array $options
      * @param array|null $defaults
@@ -55,30 +52,6 @@ class Form extends AbstractForm
     public function getMethod(): string
     {
         return $this->method;
-    }
-
-    /**
-     * @param string $error_message
-     */
-    public function addError($error_message): void
-    {
-        $this->errors[] = $error_message;
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasErrors(): bool
-    {
-        return (count($this->errors) > 0);
-    }
-
-    /**
-     * @return array
-     */
-    public function getErrors(): array
-    {
-        return $this->errors;
     }
 
     /**

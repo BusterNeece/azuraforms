@@ -17,6 +17,9 @@ abstract class AbstractForm implements FormInterface
     /** @var string The form name, used in the <form> tag and in general. */
     protected $name = self::DEFAULT_FORM_NAME;
 
+    /** @var array */
+    protected $errors = [];
+
     /**
      * @param array $options
      * @throws Exception\FieldAlreadyExists
@@ -123,6 +126,30 @@ abstract class AbstractForm implements FormInterface
     public function getName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * @param string $error_message
+     */
+    public function addError($error_message): void
+    {
+        $this->errors[] = $error_message;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasErrors(): bool
+    {
+        return (count($this->errors) > 0);
+    }
+
+    /**
+     * @return array
+     */
+    public function getErrors(): array
+    {
+        return $this->errors;
     }
 
     /**
@@ -263,6 +290,12 @@ abstract class AbstractForm implements FormInterface
     public function render(): string
     {
         $output = $this->openForm();
+
+        if ($this->hasErrors()) {
+            foreach($this->errors as $error) {
+                $output .= '<div class="alert alert-danger" role="alert">'.$error.'</div>';
+            }
+        }
 
         foreach($this->options['groups'] as $fieldset_id => $fieldset) {
             if (!empty($fieldset['legend'])) {
