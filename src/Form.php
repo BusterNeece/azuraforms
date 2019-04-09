@@ -58,7 +58,7 @@ class Form extends AbstractForm
     }
 
     /**
-     * @param $error_message
+     * @param string $error_message
      */
     public function addError($error_message): void
     {
