@@ -303,10 +303,15 @@ abstract class AbstractForm implements FormInterface
                     $fieldset_id,
                     $fieldset['class'] ?? ''
                 );
-                $output .= '<legend>'.$fieldset['legend'].'</legend>';
+            }
+
+            $output .= '<div class="row">';
+
+            if (!empty($fieldset['legend'])) {
+                $output .= '<legend class="'.$fieldset['legend_class'].'"><div>'.$fieldset['legend'].'</div></legend>';
 
                 if (!empty($fieldset['description'])) {
-                    $output .= '<p>'.$fieldset['description'].'</p>';
+                    $output .= '<p class="'.$fieldset['description_class'].'">'.$fieldset['description'].'</p>';
                 }
             }
 
@@ -316,6 +321,8 @@ abstract class AbstractForm implements FormInterface
                     $output .= $field->render($this->name);
                 }
             }
+            
+            $output .= '</div>';
 
             if (!empty($fieldset['legend'])) {
                 $output .= '</fieldset>';

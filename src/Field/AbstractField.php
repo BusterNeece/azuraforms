@@ -59,7 +59,7 @@ abstract class AbstractField implements FieldInterface
             'required' => false,
         ];
 
-        $option_names = ['label', 'label_class', 'required', 'choices', 'description'];
+        $option_names = ['label', 'label_class', 'required', 'choices', 'description', 'description_class', 'form_group_class', 'legend_class'];
         foreach($option_names as $option_name) {
             if (isset($config[$option_name])) {
                 $this->options[$option_name] = $config[$option_name];
@@ -268,20 +268,21 @@ abstract class AbstractField implements FieldInterface
      */
     public function render($form_name): string
     {
-        $output = '<div class="form-group" id="field_'.$this->name.'">';
+        $output = '<div class="form-group '.$this->options['form_group_class'].'" id="field_'.$this->name.'">';
         $output .= $this->getLabel($form_name);
-        
-        if (!empty($this->options['description'])) {
-            $output .= '<small class="help-block">'.$this->options['description'].'</small>';
-        }
-        
-        if (!empty($this->errors)) {
-            $output .= '<small class="help-block form-error">'.implode('<br>', $this->errors).'</small>';
-        }
-        
+
         $output .= '<div class="form-field">';
         $output .= $this->getField($form_name);
         $output .= '</div>';
+
+        if (!empty($this->options['description'])) {
+            $output .= '<small class="help-block">'.$this->options['description'].'</small>';
+        }
+
+        if (!empty($this->errors)) {
+            $output .= '<small class="help-block form-error">'.implode('<br>', $this->errors).'</small>';
+        }
+
         $output .= '</div>';
         return $output;
     }

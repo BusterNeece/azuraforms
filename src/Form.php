@@ -178,7 +178,7 @@ class Form extends AbstractForm
                     $fieldset_id,
                     $fieldset['class'] ?? ''
                 );
-                $output .= '<legend>'.$fieldset['legend'].'</legend>';
+                $output .= '<legend class="'.$fieldset['legend_class'].'">'.$fieldset['legend'].'</legend>';
 
                 if (!empty($fieldset['description'])) {
                     $output .= '<p>'.$fieldset['description'].'</p>';

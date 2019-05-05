@@ -9,7 +9,9 @@ final class Select extends Options
             '<select name="%1$s" id="%2$s_%1$s">%3$s</select>',
             $this->getFullName(),
             $form_name,
-            $this->_buildOptions($this->options['choices'], $this->value)
+            $this->_buildOptions($this->options['choices'], $this->value),
+            $class,
+            $attribute_string
         );
     }
 }
