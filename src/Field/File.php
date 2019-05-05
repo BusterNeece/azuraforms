@@ -64,9 +64,12 @@ final class File extends AbstractField
 
     public function getField($form_name): ?string
     {
-        return sprintf('<input type="file" name="%1$s" id="%2$s_%1$s"/>',
+        list($attribute_string, $class) = $this->_attributeString();
+
+        return sprintf('<input type="file" name="%1$s" id="%2$s_%1$s" class="%3$s"/>',
             $this->getFullName(),
-            $form_name
+            $form_name,
+            $class
         );
     }
 
@@ -115,5 +118,25 @@ final class File extends AbstractField
         }
 
         return true;
+    }
+
+    protected function _attributeString()
+    {
+        $class = '';
+
+        if (!empty($this->error)) {
+            $class = 'error';
+        }
+
+        $attribute_string = '';
+        foreach ($this->attributes as $attribute => $val) {
+            if ($attribute == 'class') {
+                $class .= ' ' . $val;
+            } else if ($val !== false) {
+                $attribute_string .= ' '.($val === true ? $attribute : "$attribute=\"$val\"");
+            }
+        }
+
+        return [$attribute_string, $class];
     }
 }
