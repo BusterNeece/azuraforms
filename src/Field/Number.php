@@ -1,7 +1,7 @@
 <?php
 namespace AzuraForms\Field;
 
-final class Number extends Text
+class Number extends Text
 {
     public function configure(array $config = []): void
     {

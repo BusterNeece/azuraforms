@@ -1,7 +1,7 @@
 <?php
 namespace AzuraForms\Field;
 
-final class Submit extends Button
+class Submit extends Button
 {
     public function configure(array $config = []): void
     {

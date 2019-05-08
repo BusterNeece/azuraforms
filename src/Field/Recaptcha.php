@@ -1,7 +1,7 @@
 <?php
 namespace AzuraForms\Field;
 
-final class Recaptcha extends AbstractField
+class Recaptcha extends AbstractField
 {
     public function configure(array $config = []): void
     {

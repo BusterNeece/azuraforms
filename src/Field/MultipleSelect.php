@@ -1,7 +1,7 @@
 <?php
 namespace AzuraForms\Field;
 
-final class MultipleSelect extends MultipleOptions
+class MultipleSelect extends MultipleOptions
 {
     public function getField($form_name): ?string
     {

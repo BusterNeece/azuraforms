@@ -1,7 +1,7 @@
 <?php
 namespace AzuraForms\Field;
 
-final class Checkbox extends MultipleOptions
+class Checkbox extends MultipleOptions
 {
     public function setValue($new_value): void
     {

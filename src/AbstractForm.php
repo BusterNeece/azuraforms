@@ -17,6 +17,21 @@ abstract class AbstractForm implements FormInterface
     /** @var string The form name, used in the <form> tag and in general. */
     protected $name = self::DEFAULT_FORM_NAME;
 
+    /**
+     * @var array An array of field type names that convert to other field classes.
+     */
+    protected $field_name_conversions = [
+        'checkboxes'    => 'Checkbox',
+        'multicheckbox' => 'Checkbox',
+        'multiselect'   => 'MultipleSelect',
+        'textarea'      => 'TextArea',
+    ];
+
+    /** @var array A list of namespaces in which to look for fields */
+    protected $field_namespaces = [
+        '\\AzuraForms\\Field',
+    ];
+
     /** @var array */
     protected $errors = [];
 
@@ -257,24 +272,15 @@ abstract class AbstractForm implements FormInterface
             return $type;
         }
 
-        $field_type_lookup = [
-            'checkboxes'    => Field\Checkbox::class,
-            'multicheckbox' => Field\Checkbox::class,
-            'multiselect'   => Field\MultipleSelect::class,
-            'textarea'      => Field\TextArea::class,
-        ];
-
-        if (isset($field_type_lookup[$type])) {
-            return $field_type_lookup[$type];
+        if (isset($this->field_name_conversions[$type])) {
+            $type = $this->field_name_conversions[$type];
         }
 
-        $namespace_options = [
-            "\\AzuraForms\\Field\\" . ucfirst($type),
-        ];
+        foreach ($this->field_namespaces as $namespace_option) {
+            $field_class = $namespace_option.'\\'.ucfirst($type);
 
-        foreach ($namespace_options as $namespace_option) {
-            if (class_exists($namespace_option)) {
-                return $namespace_option;
+            if (class_exists($field_class)) {
+                return $field_class;
                 break;
             }
         }
@@ -298,20 +304,20 @@ abstract class AbstractForm implements FormInterface
         }
 
         foreach($this->options['groups'] as $fieldset_id => $fieldset) {
-            if (!empty($fieldset['legend'])) {
+            $hide_fieldset = (bool)($fieldset['hide_fieldset'] ?? false);
+
+            if (!$hide_fieldset) {
                 $output .= sprintf('<fieldset id="%s" class="%s">',
                     $fieldset_id,
                     $fieldset['class'] ?? ''
                 );
-            }
 
-            $output .= '<div class="row">';
+                if (!empty($fieldset['legend'])) {
+                    $output .= '<legend class="'.$fieldset['legend_class'].'"><div>'.$fieldset['legend'].'</div></legend>';
 
-            if (!empty($fieldset['legend'])) {
-                $output .= '<legend class="'.$fieldset['legend_class'].'"><div>'.$fieldset['legend'].'</div></legend>';
-
-                if (!empty($fieldset['description'])) {
-                    $output .= '<p class="'.$fieldset['description_class'].'">'.$fieldset['description'].'</p>';
+                    if (!empty($fieldset['description'])) {
+                        $output .= '<p class="'.$fieldset['description_class'].'">'.$fieldset['description'].'</p>';
+                    }
                 }
             }
 
@@ -321,10 +327,8 @@ abstract class AbstractForm implements FormInterface
                     $output .= $field->render($this->name);
                 }
             }
-            
-            $output .= '</div>';
 
-            if (!empty($fieldset['legend'])) {
+            if (!$hide_fieldset) {
                 $output .= '</fieldset>';
             }
         }

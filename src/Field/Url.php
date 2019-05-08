@@ -1,7 +1,7 @@
 <?php
 namespace AzuraForms\Field;
 
-final class Url extends Text
+class Url extends Text
 {
     public function configure(array $config = []): void
     {

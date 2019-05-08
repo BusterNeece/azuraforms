@@ -1,7 +1,7 @@
 <?php
 namespace AzuraForms\Field;
 
-final class Toggle extends BaseOptions
+class Toggle extends BaseOptions
 {
     public function configure(array $config = []): void
     {

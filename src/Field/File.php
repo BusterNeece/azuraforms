@@ -1,7 +1,7 @@
 <?php
 namespace AzuraForms\Field;
 
-final class File extends AbstractField
+class File extends AbstractField
 {
     protected $mime_types = [
         'image' => [

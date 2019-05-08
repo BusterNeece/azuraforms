@@ -1,7 +1,7 @@
 <?php
 namespace AzuraForms\Field;
 
-final class Time extends Text
+class Time extends Text
 {
     public function configure(array $config = []): void
     {

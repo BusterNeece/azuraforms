@@ -1,7 +1,7 @@
 <?php
 namespace AzuraForms\Field;
 
-final class Select extends Options
+class Select extends Options
 {
     public function getField($form_name): ?string
     {
