@@ -168,6 +168,43 @@ abstract class AbstractForm implements FormInterface
     }
 
     /**
+     * @return bool Whether the form (including its individual fields) have any errors.
+     */
+    public function hasAnyErrors(): bool
+    {
+        return (count($this->getAllErrors()) > 0);
+    }
+
+    /**
+     * @return Error[] All errors associated with the form, including its individual fields.
+     */
+    public function getAllErrors(): array
+    {
+        static $all_errors;
+
+        if (null === $all_errors) {
+            $all_errors = [];
+
+            foreach($this->errors as $error) {
+                $all_errors[] = new Error($error, null);
+            }
+
+            foreach($this->fields as $field) {
+                if ($field->hasErrors()) {
+                    $field_options = $field->getOptions();
+                    $field_label = $field_options['label'] ?? $field->getName();
+
+                    foreach($field->getErrors() as $error) {
+                        $all_errors[] = new Error($error, $field_label);
+                    }
+                }
+            }
+        }
+
+        return $all_errors;
+    }
+
+    /**
      * Iterate through configuration options and set up each individual form element.
      *
      * @param array $options
