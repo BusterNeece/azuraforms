@@ -118,17 +118,20 @@ class Form extends AbstractForm
                 : (array)$_GET;
         }
 
-        $file_data = $this->_fixFilesArray($_FILES ?? array());
-
         if (empty($request)) {
             return false;
         }
+
+        $this->populate($request);
+
+        $file_data = $this->_fixFilesArray($_FILES ?? array());
+        $this->populate($file_data);
 
         // Validate individual fields using the class validator.
         $is_valid = true;
 
         foreach ($this->fields as $key => $value) {
-            if (!$value->isValid($request[$key] ?? $file_data[$key] ?? '')) {
+            if (!$value->isValid()) {
                 $is_valid = false;
             }
         }
