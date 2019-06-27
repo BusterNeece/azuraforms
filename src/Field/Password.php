@@ -13,7 +13,7 @@ class Password extends Text
         unset($this->attributes['min_length']);
 
         $this->options['confirm'] = $this->attributes['confirm'] ?? null;
-        unset($this->attributes('confirm'));
+        unset($this->attributes['confirm']);
 
         $this->validators[] = function($value, $element) {
             if ($this->options['min_length'] && strlen($value) < $this->options['min_length']) {
