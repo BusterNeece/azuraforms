@@ -221,7 +221,6 @@ class Form extends AbstractForm
                 $fields[] = $field->getField($this->name);
             }
         }
-        $fields[] = $this->fields[self::CSRF_FIELD_NAME]->getField($this->name);
 
         return implode("\n", $fields);
     }
