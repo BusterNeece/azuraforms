@@ -112,6 +112,10 @@ class Form extends AbstractForm
      */
     public function isValid(array $request = null): bool
     {
+        foreach($this->fields as $field) {
+            $field->setValue(null);
+        }
+
         if ($request === null) {
             $request = (strtoupper($this->method) === self::METHOD_POST)
                 ? (array)$_POST
