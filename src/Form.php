@@ -81,12 +81,19 @@ class Form extends AbstractForm
      * Set the already-filled data for this form.
      *
      * @param array $data
+     * @param bool $clear_fields
      */
-    public function populate($data)
+    public function populate(array $data = [], bool $clear_fields = false): void
     {
+        if ($clear_fields) {
+            foreach($this->fields as $field) {
+                $field->setValue(null);
+            }
+        }
+
         $set_data = [];
 
-        foreach ((array)$data as $row_key => $row_value) {
+        foreach ($data as $row_key => $row_value) {
             if (is_array($row_value) && isset($this->groups[$row_key])) {
                 foreach ($row_value as $row_subkey => $row_subvalue) {
                     $set_data[$row_key . '_' . $row_subkey] = $row_subvalue;
@@ -112,10 +119,6 @@ class Form extends AbstractForm
      */
     public function isValid(array $request = null): bool
     {
-        foreach($this->fields as $field) {
-            $field->setValue(null);
-        }
-
         if ($request === null) {
             $request = (strtoupper($this->method) === self::METHOD_POST)
                 ? (array)$_POST
@@ -126,7 +129,7 @@ class Form extends AbstractForm
             return false;
         }
 
-        $this->populate($request);
+        $this->populate($request, true);
 
         $file_data = $this->_fixFilesArray($_FILES ?? array());
         $this->populate($file_data);

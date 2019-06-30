@@ -5,7 +5,7 @@ class Radio extends Options
 {
     public function setValue($new_value): void
     {
-        if ($new_value === "") {
+        if ($new_value === '') {
             $new_value = '0';
         }
 

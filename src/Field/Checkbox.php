@@ -3,11 +3,6 @@ namespace AzuraForms\Field;
 
 class Checkbox extends MultipleOptions
 {
-    public function setValue($new_value): void
-    {
-        parent::setValue($new_value);
-    }
-
     public function getField($form_name): ?string
     {
         $field = '';
