@@ -3,6 +3,11 @@ namespace AzuraForms\Field;
 
 abstract class MultipleOptions extends BaseOptions
 {
+    public function getValue()
+    {
+        return (array)parent::getValue();
+    }
+
     public function configure(array $config = []): void
     {
         parent::configure($config);
