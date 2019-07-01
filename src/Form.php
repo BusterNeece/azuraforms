@@ -87,7 +87,7 @@ class Form extends AbstractForm
     {
         if ($clear_fields) {
             foreach($this->fields as $field) {
-                $field->setValue(null);
+                $field->clearValue();
             }
         }
 

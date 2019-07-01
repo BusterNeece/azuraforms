@@ -3,6 +3,11 @@ namespace AzuraForms\Field;
 
 abstract class MultipleOptions extends BaseOptions
 {
+    public function clearValue(): void
+    {
+        $this->value = [];
+    }
+
     public function getValue()
     {
         return (array)parent::getValue();

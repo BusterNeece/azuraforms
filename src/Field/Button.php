@@ -3,6 +3,8 @@ namespace AzuraForms\Field;
 
 class Button extends Text
 {
+    use Traits\NullValueTrait;
+
     public function configure(array $config = []): void
     {
         parent::configure($config);
@@ -11,21 +13,6 @@ class Button extends Text
         unset($this->options['label']);
 
         $this->attributes['type'] = 'button';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setValue($new_value): void
-    {
-        // Don't allow the resetting of a submit value.
-        return;
-    }
-
-    public function getValue()
-    {
-        // Indicate that this field shouldn't be included in bulk value returns.
-        return null;
     }
 
     public function isValid($new_value = null): bool

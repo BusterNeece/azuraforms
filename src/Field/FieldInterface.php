@@ -39,6 +39,11 @@ interface FieldInterface
     public function setValue($new_value): void;
 
     /**
+     * Reset the stored value for this field.
+     */
+    public function clearValue(): void;
+
+    /**
      * Clear all existing validators.
      */
     public function clearValidators(): void;

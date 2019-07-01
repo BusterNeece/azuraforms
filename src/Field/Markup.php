@@ -6,11 +6,7 @@ namespace AzuraForms\Field;
  */
 class Markup extends AbstractField
 {
-    public function getValue()
-    {
-        // Indicate that this field shouldn't be included in bulk value returns.
-        return null;
-    }
+    use Traits\NullValueTrait;
 
     public function getField($form_name): ?string
     {

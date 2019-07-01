@@ -146,6 +146,11 @@ abstract class AbstractField implements FieldInterface
         $this->value = $this->_filterValue($new_value);
     }
 
+    public function clearValue(): void
+    {
+        $this->value = '';
+    }
+
     /**
      * Clear all existing validators.
      */
