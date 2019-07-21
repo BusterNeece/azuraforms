@@ -14,6 +14,8 @@ class Csrf extends Hidden
 
         $this->options['required'] = true;
 
+        $this->attributes['autocomplete'] = 'off';
+
         $this->validators[] = function($form_token) {
             if (isset($_SESSION[self::SESSION_NAMESPACE][$this->options['csrf_key']])) {
                 if (hash_equals($_SESSION[self::SESSION_NAMESPACE][$this->options['csrf_key']], $form_token)) {
