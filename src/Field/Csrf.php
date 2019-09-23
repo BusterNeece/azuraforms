@@ -17,23 +17,31 @@ class Csrf extends Hidden
         $this->attributes['autocomplete'] = 'off';
 
         $this->validators[] = function($form_token) {
-            if (isset($_SESSION[self::SESSION_NAMESPACE][$this->options['csrf_key']])) {
-                if (hash_equals($_SESSION[self::SESSION_NAMESPACE][$this->options['csrf_key']], $form_token)) {
-                    return true;
-                }
+            if (!$this->verifyCsrf($form_token)) {
+                return 'CSRF validation failure.';
             }
-            return 'CSRF validation failure.';
         };
     }
 
     public function getField($form_name): ?string
     {
-        $this->_generate();
+        $this->setValue($this->generateCsrf());
 
         return parent::getField($form_name);
     }
 
-    protected function _generate()
+    protected function verifyCsrf(string $token): bool
+    {
+        if (isset($_SESSION[self::SESSION_NAMESPACE][$this->options['csrf_key']])) {
+            if (hash_equals($_SESSION[self::SESSION_NAMESPACE][$this->options['csrf_key']], $form_token)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function generateCsrf(): string
     {
         if (!isset($_SESSION[self::SESSION_NAMESPACE])) {
             $_SESSION[self::SESSION_NAMESPACE] = [];
@@ -42,6 +50,6 @@ class Csrf extends Hidden
         $new_token = bin2hex(random_bytes(32));
 
         $_SESSION[self::SESSION_NAMESPACE][$this->options['csrf_key']] = $new_token;
-        $this->setValue($new_token);
+        
     }
 }
