@@ -17,9 +17,11 @@ class Csrf extends Hidden
         $this->attributes['autocomplete'] = 'off';
 
         $this->validators[] = function($form_token) {
-            if (!$this->verifyCsrf($form_token)) {
-                return 'CSRF validation failure.';
+            if ($this->verifyCsrf($form_token)) {
+                return true;
             }
+
+            return 'CSRF validation failure.';
         };
     }
 
