@@ -35,7 +35,7 @@ class Csrf extends Hidden
     protected function verifyCsrf(string $token): bool
     {
         if (isset($_SESSION[self::SESSION_NAMESPACE][$this->options['csrf_key']])) {
-            if (hash_equals($_SESSION[self::SESSION_NAMESPACE][$this->options['csrf_key']], $form_token)) {
+            if (hash_equals($_SESSION[self::SESSION_NAMESPACE][$this->options['csrf_key']], $token)) {
                 return true;
             }
         }
