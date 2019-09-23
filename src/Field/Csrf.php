@@ -51,5 +51,6 @@ class Csrf extends Hidden
 
         $_SESSION[self::SESSION_NAMESPACE][$this->options['csrf_key']] = $new_token;
         
+        return $new_token;
     }
 }
