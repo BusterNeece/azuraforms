@@ -72,6 +72,14 @@ class Form extends AbstractForm
         }
 
         // Add CSRF field
+        $this->addCsrfField();
+    }
+
+    /**
+     * Add CSRF verification field to the form.
+     */
+    protected function addCsrfField(): void
+    {
         $this->addField(self::CSRF_FIELD_NAME, Field\Csrf::class, [
             'csrf_key' => $this->name,
         ]);
