@@ -257,7 +257,7 @@ class Form extends AbstractForm
             }
         }
 
-        return sprintf('<form id="%s" action="%s" method="%s" class="%s" %s>',
+        return sprintf('<form accept-charset="UTF-8" id="%s" action="%s" method="%s" class="%s" %s>',
             $this->name,
             $this->action,
             $this->method,
