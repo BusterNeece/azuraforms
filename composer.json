@@ -39,5 +39,10 @@
             "homepage": "http://lrotherfield.com",
             "role": "Developer of original Nibble Forms"
         }
-    ]
+    ],
+    "extra": {
+        "branch-alias": {
+            "dev-master": "dev-main"
+        }
+    }
 }
