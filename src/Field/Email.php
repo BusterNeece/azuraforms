@@ -10,6 +10,9 @@ class Email extends Text
         $this->attributes['type'] = 'email';
 
         $this->validators[] = function($value) {
+            if (empty($value)) {
+                return true;
+            }
             if (false === filter_var($value, \FILTER_VALIDATE_EMAIL)) {
                 return 'Must be a valid e-mail address';
             }
