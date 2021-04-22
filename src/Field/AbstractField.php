@@ -273,7 +273,7 @@ abstract class AbstractField implements FieldInterface
      */
     public function render($form_name): string
     {
-        $output = '<div class="form-group '.$this->options['form_group_class'].'" id="field_'.$this->name.'">';
+        $output = '<div class="form-group '.($this->options['form_group_class'] ?? '').'" id="field_'.$this->name.'">';
         $output .= $this->getLabel($form_name);
 
         $output .= '<div class="form-field">';
