@@ -20,7 +20,7 @@ abstract class Options extends BaseOptions
         };
     }
 
-    protected function _isEmpty($value): bool
+    protected function isEmpty($value): bool
     {
         return false;
     }

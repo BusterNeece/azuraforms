@@ -75,7 +75,7 @@ class File extends AbstractField
         );
     }
 
-    protected function _validateValue($val): bool
+    protected function validateValue($val): bool
     {
         if ($this->options['required']) {
             if ($val['error'] != 0 || $val['size'] == 0) {

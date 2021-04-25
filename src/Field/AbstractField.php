@@ -143,7 +143,7 @@ abstract class AbstractField implements FieldInterface
      */
     public function setValue($new_value): void
     {
-        $this->value = $this->_filterValue($new_value);
+        $this->value = $this->filterValue($new_value);
     }
 
     public function clearValue(): void
@@ -223,7 +223,7 @@ abstract class AbstractField implements FieldInterface
      * @param mixed $value
      * @return mixed
      */
-    protected function _filterValue($value)
+    protected function filterValue($value)
     {
         if (!empty($this->filters)) {
             foreach($this->filters as $filter) {
@@ -325,7 +325,7 @@ abstract class AbstractField implements FieldInterface
             $this->setValue($new_value);
         }
 
-        return $this->_validateValue($this->value);
+        return $this->validateValue($this->value);
     }
 
     /**
@@ -334,11 +334,11 @@ abstract class AbstractField implements FieldInterface
      * @param mixed $value
      * @return bool
      */
-    protected function _validateValue($value): bool
+    protected function validateValue($value): bool
     {
         $this->errors = [];
 
-        if ($this->options['required'] && $this->_isEmpty($value)) {
+        if ($this->options['required'] && $this->isEmpty($value)) {
             $this->errors[] = 'This field is required.';
             return false;
         }
@@ -366,7 +366,7 @@ abstract class AbstractField implements FieldInterface
      * @param mixed $value
      * @return bool
      */
-    protected function _isEmpty($value): bool
+    protected function isEmpty($value): bool
     {
         return empty($value);
     }
@@ -406,19 +406,15 @@ abstract class AbstractField implements FieldInterface
     /**
      * Escape a potentially user-supplied value prior to display.
      *
-     * @param string $string
+     * @param string|null $string
      *
-     * @return string
+     * @return string|null
      */
-    protected function escape(string $string): string
+    protected function escape(?string $string): ?string
     {
-        static $flags;
-
-        if (!isset($flags)) {
-            $flags = ENT_QUOTES | (defined('ENT_SUBSTITUTE') ? ENT_SUBSTITUTE : 0);
-        }
-
-        return htmlspecialchars($string, $flags);
+        return (null === $string)
+            ? null
+            : htmlspecialchars($string, ENT_QUOTES | ENT_SUBSTITUTE);
     }
 
     /**
