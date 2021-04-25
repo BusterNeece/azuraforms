@@ -6,13 +6,13 @@ use AzuraForms;
 abstract class AbstractField implements FieldInterface
 {
     /** @var AzuraForms\Form The parent form that contains this field, used for enhanced validation. */
-    protected $form;
+    protected AzuraForms\Form $form;
 
     /** @var string The element name in the form. */
-    protected $name;
+    protected string $name;
 
     /** @var string|null The group the element is associated with (if any). */
-    protected $group;
+    protected ?string $group;
 
     /**
      * @var array The options associated with the field. These are internal configuration values
@@ -21,22 +21,22 @@ abstract class AbstractField implements FieldInterface
      *  - required
      *  - choices (for multiple-choice items)
      */
-    protected $options = [];
+    protected array $options = [];
 
     /** @var array Field attributes that are included in its HTML output. */
-    protected $attributes = [];
+    protected array $attributes = [];
 
     /** @var array A list of errors associated with the field. */
-    protected $errors = [];
+    protected array $errors = [];
 
     /** @var mixed The current value of the input field. */
     protected $value;
 
     /** @var array Any input filters that are applied to this item. */
-    protected $filters = [];
+    protected array $filters = [];
 
     /** @var array Any validators that are applied to this item. */
-    protected $validators = [];
+    protected array $validators = [];
 
     /**
      * @param AzuraForms\Form $form
@@ -44,7 +44,7 @@ abstract class AbstractField implements FieldInterface
      * @param array $config
      * @param null $group
      */
-    public function __construct(AzuraForms\Form $form, $element_name, array $config = [], $group = null)
+    public function __construct(AzuraForms\Form $form, string $element_name, array $config = [], $group = null)
     {
         $this->form = $form;
         $this->name = $element_name;
@@ -195,7 +195,7 @@ abstract class AbstractField implements FieldInterface
      * @param string $key
      * @param mixed $value
      */
-    public function setOption($key, $value): void
+    public function setOption(string $key, $value): void
     {
         $this->options[$key] = $value;
     }
@@ -212,7 +212,7 @@ abstract class AbstractField implements FieldInterface
      * @param string $key
      * @param mixed $value
      */
-    public function setAttribute($key, $value): void
+    public function setAttribute(string $key, $value): void
     {
         $this->attributes[$key] = $value;
     }
@@ -269,9 +269,10 @@ abstract class AbstractField implements FieldInterface
      * Return an editable form control for this field.
      *
      * @param string $form_name
+     *
      * @return string The rendered form element.
      */
-    public function render($form_name): string
+    public function render(string $form_name): string
     {
         $output = '<div class="form-group '.($this->options['form_group_class'] ?? '').'" id="field_'.$this->name.'">';
         $output .= $this->getLabel($form_name);
@@ -374,17 +375,19 @@ abstract class AbstractField implements FieldInterface
      * Return the field body HTML for this element.
      *
      * @param string $form_name
+     *
      * @return null|string
      */
-    abstract public function getField($form_name): ?string;
+    abstract public function getField(string $form_name): ?string;
 
     /**
      * Return the label HTML for this element.
      *
      * @param string $form_name
+     *
      * @return null|string
      */
-    public function getLabel($form_name): ?string
+    public function getLabel(string $form_name): ?string
     {
         if (empty($this->options['label'])) {
             return null;
@@ -404,9 +407,10 @@ abstract class AbstractField implements FieldInterface
      * Escape a potentially user-supplied value prior to display.
      *
      * @param string $string
+     *
      * @return string
      */
-    protected function escape($string): string
+    protected function escape(string $string): string
     {
         static $flags;
 
@@ -414,7 +418,7 @@ abstract class AbstractField implements FieldInterface
             $flags = ENT_QUOTES | (defined('ENT_SUBSTITUTE') ? ENT_SUBSTITUTE : 0);
         }
 
-        return htmlspecialchars($string, $flags, 'UTF-8');
+        return htmlspecialchars($string, $flags);
     }
 
     /**
@@ -422,9 +426,10 @@ abstract class AbstractField implements FieldInterface
      *
      * @param string $text
      * @param string $replacement
+     *
      * @return string
      */
-    protected function slugify($text, $replacement = '-'): string
+    protected function slugify(string $text, $replacement = '-'): string
     {
         return strtolower(trim(preg_replace('/\W+/', $replacement, $text), '-'));
     }

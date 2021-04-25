@@ -12,9 +12,9 @@ class Text extends AbstractField
         }
     }
 
-    public function getField($form_name): ?string
+    public function getField(string $form_name): ?string
     {
-        list($attribute_string, $class) = $this->_attributeString();
+        [$attribute_string, $class] = $this->_attributeString();
 
         return sprintf('<input type="%1$s" name="%2$s" id="%6$s_%2$s" value="%3$s" %4$s class="%5$s" />',
             $this->attributes['type'],
@@ -26,7 +26,7 @@ class Text extends AbstractField
         );
     }
 
-    protected function _attributeString()
+    protected function _attributeString(): array
     {
         $class = '';
 

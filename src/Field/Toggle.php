@@ -19,7 +19,7 @@ class Toggle extends BaseOptions
         parent::setValue((bool)$new_value);
     }
 
-    public function getField($form_name): ?string
+    public function getField(string $form_name): ?string
     {
         [$attribute_string, $class] = $this->_attributeString();
 
@@ -39,7 +39,7 @@ class Toggle extends BaseOptions
         );
     }
 
-    protected function _attributeString()
+    protected function _attributeString(): array
     {
         $class = 'toggle-switch';
 

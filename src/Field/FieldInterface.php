@@ -72,7 +72,7 @@ interface FieldInterface
      * @param string $key
      * @param mixed $value
      */
-    public function setOption($key, $value): void;
+    public function setOption(string $key, $value): void;
 
     /**
      * @return array
@@ -83,7 +83,7 @@ interface FieldInterface
      * @param string $key
      * @param mixed $value
      */
-    public function setAttribute($key, $value): void;
+    public function setAttribute(string $key, $value): void;
 
     /**
      * Return a list of all current errors.
@@ -118,9 +118,10 @@ interface FieldInterface
      * Return an editable form control for this field.
      *
      * @param string $form_name
+     *
      * @return string The rendered form element.
      */
-    public function render($form_name): string;
+    public function render(string $form_name): string;
 
     /**
      * Return a view-only list version of the form element and its value.
@@ -134,15 +135,17 @@ interface FieldInterface
      * Return the field body HTML for this element.
      *
      * @param string $form_name
+     *
      * @return null|string
      */
-    public function getField($form_name): ?string;
+    public function getField(string $form_name): ?string;
 
     /**
      * Return the label HTML for this element.
      *
      * @param string $form_name
+     *
      * @return null|string
      */
-    public function getLabel($form_name): ?string;
+    public function getLabel(string $form_name): ?string;
 }

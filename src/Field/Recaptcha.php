@@ -25,7 +25,7 @@ class Recaptcha extends AbstractField
         };
     }
 
-    public function getField($form_name): ?string
+    public function getField(string $form_name): ?string
     {
         $field = <<<FIELD
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>';
@@ -37,6 +37,6 @@ FIELD;
 
     public function renderView($show_empty = false): string
     {
-        return null;
+        return '';
     }
 }

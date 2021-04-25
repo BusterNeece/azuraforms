@@ -2,7 +2,8 @@
     "name" : "azuracast/azuraforms",
     "description": "A modern, namespaced, configuration-driven forms engine for PHP.",
     "require": {
-        "php": ">=7.4"
+        "php": ">=7.4",
+        "ext-json": "*"
     },
     "require-dev": {
         "phpstan/phpstan": "^0.12",

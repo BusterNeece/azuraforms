@@ -3,9 +3,9 @@ namespace AzuraForms\Field;
 
 class Select extends Options
 {
-    public function getField($form_name): ?string
+    public function getField(string $form_name): ?string
     {
-        list($attribute_string, $class) = $this->_attributeString();
+        [$attribute_string, $class] = $this->_attributeString();
 
         return sprintf(
             '<select name="%1$s" id="%2$s_%1$s" class="%4%s" %5$s>%3$s</select>',
@@ -17,7 +17,7 @@ class Select extends Options
         );
     }
 
-    protected function _attributeString()
+    protected function _attributeString(): array
     {
         $class = '';
 

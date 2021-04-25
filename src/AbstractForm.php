@@ -1,26 +1,29 @@
 <?php
 namespace AzuraForms;
 
+use ArrayIterator;
+use Traversable;
+
 abstract class AbstractForm implements FormInterface
 {
     public const DEFAULT_FORM_NAME = 'azuraforms_form';
 
     /** @var array The form's configuration options. */
-    protected $options;
+    protected array $options;
 
     /** @var array An array of "belongsTo" lookup groups (for processing data). */
-    protected $groups;
+    protected array $groups;
 
     /** @var Field\AbstractField[] */
-    protected $fields;
+    protected array $fields;
 
     /** @var string The form name, used in the <form> tag and in general. */
-    protected $name = self::DEFAULT_FORM_NAME;
+    protected string $name = self::DEFAULT_FORM_NAME;
 
     /**
      * @var array An array of field type names that convert to other field classes.
      */
-    protected $field_name_conversions = [
+    protected array $field_name_conversions = [
         'checkboxes'    => 'Checkbox',
         'multicheckbox' => 'Checkbox',
         'multiselect'   => 'MultipleSelect',
@@ -28,12 +31,12 @@ abstract class AbstractForm implements FormInterface
     ];
 
     /** @var array A list of namespaces in which to look for fields */
-    protected $field_namespaces = [
+    protected array $field_namespaces = [
         '\\AzuraForms\\Field',
     ];
 
     /** @var array */
-    protected $errors = [];
+    protected array $errors = [];
 
     /**
      * @param array $options
@@ -59,10 +62,11 @@ abstract class AbstractForm implements FormInterface
      * Retrieve an already added field.
      *
      * @param string $key
+     *
      * @return Field\FieldInterface
      * @throws Exception\FieldNotFound
      */
-    public function getField($key): Field\FieldInterface
+    public function getField(string $key): Field\FieldInterface
     {
         if (isset($this->fields[$key])) {
             return $this->fields[$key];
@@ -75,9 +79,10 @@ abstract class AbstractForm implements FormInterface
      * Check if a field exists
      *
      * @param string $field
+     *
      * @return boolean
      */
-    public function hasField($field): bool
+    public function hasField(string $field): bool
     {
         return isset($this->fields[$field]);
     }
@@ -90,11 +95,12 @@ abstract class AbstractForm implements FormInterface
      * @param array $attributes
      * @param null $group
      * @param bool $overwrite
+     *
      * @return string The finalized (and group-prefixed) element name for the element.
      * @throws Exception\FieldAlreadyExists
      * @throws Exception\FieldClassNotFound
      */
-    public function addField($field_name, $type = 'text', array $attributes = [], $group = null, $overwrite = false): string
+    public function addField(string $field_name, $type = 'text', array $attributes = [], $group = null, $overwrite = false): string
     {
         $class = $this->_getFieldClass($type);
 
@@ -116,11 +122,11 @@ abstract class AbstractForm implements FormInterface
     }
 
     /**
-     * @return \ArrayIterator|\Traversable
+     * @return ArrayIterator|Traversable
      */
     public function getIterator()
     {
-        return new \ArrayIterator($this->fields);
+        return new ArrayIterator($this->fields);
     }
 
     /**
@@ -128,7 +134,7 @@ abstract class AbstractForm implements FormInterface
      *
      * @param string $name
      */
-    public function setName($name): void
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
@@ -146,7 +152,7 @@ abstract class AbstractForm implements FormInterface
     /**
      * @param string $error_message
      */
-    public function addError($error_message): void
+    public function addError(string $error_message): void
     {
         $this->errors[] = $error_message;
     }
@@ -286,9 +292,10 @@ abstract class AbstractForm implements FormInterface
      * Return the stored data for an individual field.
      *
      * @param string $key
+     *
      * @return null|mixed
      */
-    public function getValue($key)
+    public function getValue(string $key)
     {
         if (isset($this->fields[$key])) {
             return $this->fields[$key]->getValue();
@@ -300,10 +307,11 @@ abstract class AbstractForm implements FormInterface
      * Find the appropriate class for the type specified.
      *
      * @param string $type
+     *
      * @return string
      * @throws Exception\FieldClassNotFound
      */
-    protected function _getFieldClass($type): string
+    protected function _getFieldClass(string $type): string
     {
         if (class_exists($type)) {
             return $type;

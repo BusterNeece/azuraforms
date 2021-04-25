@@ -13,7 +13,7 @@ abstract class BaseOptions extends AbstractField
 
     abstract public function getSelectedValue();
 
-    protected function _getAttributeString($val)
+    protected function _getAttributeString($val): array
     {
         $attribute_string = '';
         if (is_array($val)) {
@@ -61,7 +61,7 @@ abstract class BaseOptions extends AbstractField
                     $this->_buildOptions($val, $selected)
                 );
             } else {
-                list($choice_val, $choice_attributes) = $this->_getAttributeString($val);
+                [$choice_val, $choice_attributes] = $this->_getAttributeString($val);
 
                 $is_selected = false;
                 if (null !== $selected) {

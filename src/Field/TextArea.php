@@ -16,9 +16,9 @@ class TextArea extends Text
         }
     }
 
-    public function getField($form_name): ?string
+    public function getField(string $form_name): ?string
     {
-        list($attribute_string, $class) = $this->_attributeString();
+        [$attribute_string, $class] = $this->_attributeString();
 
         return sprintf('<textarea name="%1$s" id="%5$s_%1$s" class="%2$s" %4$s>%3$s</textarea>',
             $this->getFullName(),

@@ -8,7 +8,7 @@ abstract class MultipleOptions extends BaseOptions
         $this->value = [];
     }
 
-    public function getValue()
+    public function getValue(): array
     {
         return (array)parent::getValue();
     }
@@ -21,16 +21,16 @@ abstract class MultipleOptions extends BaseOptions
         unset($this->attributes['minimum_selected']);
 
         $this->validators[] = function($value) {
-            if (is_array($value)) {
-                if ($this->options['minimum_selected'] && count($value) < $this->options['minimum_selected']) {
+            if (is_array($value)
+                && $this->options['minimum_selected']
+                && count($value) < $this->options['minimum_selected']) {
                     return sprintf('At least %d options must be selected', $this->options['minimum_selected']);
                 }
-            }
             return true;
         };
     }
 
-    public function getSelectedValue()
+    public function getSelectedValue(): array
     {
         $selected = [];
         $choices = $this->_getFlattenedChoices($this->options['choices']);

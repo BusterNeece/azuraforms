@@ -16,10 +16,10 @@ class Form extends AbstractForm
     public const METHOD_GET = 'GET';
 
     /** @var string The form's "action" attribute. */
-    protected $action = '';
+    protected string $action = '';
 
     /** @var string The form's submission method (GET or POST). */
-    protected $method = self::METHOD_POST;
+    protected string $method = self::METHOD_POST;
 
     /**
      * @param array $options
@@ -129,8 +129,8 @@ class Form extends AbstractForm
     {
         if ($request === null) {
             $request = (strtoupper($this->method) === self::METHOD_POST)
-                ? (array)$_POST
-                : (array)$_GET;
+                ? $_POST
+                : $_GET;
         }
 
         if (empty($request)) {
@@ -139,7 +139,7 @@ class Form extends AbstractForm
 
         $this->populate($request, true);
 
-        $file_data = $this->_fixFilesArray($_FILES ?? array());
+        $file_data = $this->fixFilesArray($_FILES ?? array());
         $this->populate($file_data);
 
         // Validate individual fields using the class validator.
@@ -162,11 +162,12 @@ class Form extends AbstractForm
      * $_FILES['field']['index']['key']
      *
      * @param array $files
+     *
      * @return array
      * @author Corey Ballou
      * @link http://www.jqueryin.com
      */
-    protected function _fixFilesArray($files): array
+    protected function fixFilesArray(array $files): array
     {
         $names = array('name' => 1, 'type' => 1, 'tmp_name' => 1, 'error' => 1, 'size' => 1);
 
@@ -206,8 +207,9 @@ class Form extends AbstractForm
             $output .= '<dl>';
 
             foreach($fieldset['elements'] as $element_id => $element_info) {
-                if (!empty($element_info[1]['belongsTo']))
-                    $element_id = $element_info[1]['belongsTo'].'_'.$element_id;
+                if (!empty($element_info[1]['belongsTo'])) {
+                    $element_id = $element_info[1]['belongsTo'] . '_' . $element_id;
+                }
 
                 if (isset($this->fields[$element_id])) {
                     $field = $this->fields[$element_id];
@@ -231,7 +233,7 @@ class Form extends AbstractForm
     public function renderHidden(): string
     {
         $fields = array();
-        foreach ($this->fields as $name => $field) {
+        foreach ($this->fields as $field) {
             if ($field instanceof Field\Hidden) {
                 $fields[] = $field->getField($this->name);
             }
@@ -245,24 +247,37 @@ class Form extends AbstractForm
      */
     public function openForm(): string
     {
-        $class = 'form';
-        if (isset($this->options['class'])) {
-            $class .= ' '.$this->options['class'];
+        $formAttrs = $this->getFormAttributes();
+
+        $formAttrsStr = [];
+        foreach($formAttrs as $key => $val) {
+            $formAttrsStr[] = $key.'="' . htmlentities($val) . '"';
         }
 
-        $enctype = '';
+        return '<form '.implode(' ', $formAttrsStr).'>';
+    }
+
+    protected function getFormAttributes(): array
+    {
+        $formAttrs = [
+            'id' => $this->name,
+            'action' => $this->action,
+            'class' => 'form '.($this->options['class'] ?? ''),
+            'accept-charset' => 'UTF-8',
+        ];
+
         foreach ($this->fields as $field) {
             if ($field instanceof Field\File) {
-                $enctype = 'enctype="multipart/form-data"';
+                $formAttrs['enctype'] = 'multipart/form-data';
+                break;
             }
         }
 
-        return sprintf('<form accept-charset="UTF-8" id="%s" action="%s" method="%s" class="%s" %s>',
-            $this->name,
-            $this->action,
-            $this->method,
-            $class,
-            $enctype);
+        if (!empty($this->options['form'])) {
+            $formAttrs = array_merge($formAttrs, (array)$this->options['form']);
+        }
+
+        return $formAttrs;
     }
 }
 

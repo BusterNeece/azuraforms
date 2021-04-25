@@ -8,7 +8,7 @@ class Markup extends AbstractField
 {
     use Traits\NullValueTrait;
 
-    public function getField($form_name): ?string
+    public function getField(string $form_name): ?string
     {
         return $this->attributes['markup'];
     }

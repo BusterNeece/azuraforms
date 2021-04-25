@@ -1,6 +1,8 @@
 <?php
 namespace AzuraForms\Field;
 
+use AzuraForms\Form;
+
 class Csrf extends Hidden
 {
     public const SESSION_NAMESPACE = 'azuraforms_csrf';
@@ -9,7 +11,7 @@ class Csrf extends Hidden
     {
         parent::configure($config);
 
-        $this->options['csrf_key'] = $this->attributes['csrf_key'] ?? \AzuraForms\Form::DEFAULT_FORM_NAME;
+        $this->options['csrf_key'] = $this->attributes['csrf_key'] ?? Form::DEFAULT_FORM_NAME;
         unset($this->attributes['csrf_key']);
 
         $this->options['required'] = true;
@@ -25,7 +27,7 @@ class Csrf extends Hidden
         };
     }
 
-    public function getField($form_name): ?string
+    public function getField(string $form_name): ?string
     {
         $this->setValue($this->generateCsrf());
 
@@ -34,13 +36,8 @@ class Csrf extends Hidden
 
     protected function verifyCsrf(string $token): bool
     {
-        if (isset($_SESSION[self::SESSION_NAMESPACE][$this->options['csrf_key']])) {
-            if (hash_equals($_SESSION[self::SESSION_NAMESPACE][$this->options['csrf_key']], $token)) {
-                return true;
-            }
-        }
-
-        return false;
+        return isset($_SESSION[self::SESSION_NAMESPACE][$this->options['csrf_key']])
+            && hash_equals($_SESSION[self::SESSION_NAMESPACE][$this->options['csrf_key']], $token);
     }
 
     protected function generateCsrf(): string
@@ -52,7 +49,7 @@ class Csrf extends Hidden
         $new_token = bin2hex(random_bytes(32));
 
         $_SESSION[self::SESSION_NAMESPACE][$this->options['csrf_key']] = $new_token;
-        
+
         return $new_token;
     }
 }

@@ -1,9 +1,11 @@
 <?php
 namespace AzuraForms\Field;
 
+use const UPLOAD_ERR_OK;
+
 class File extends AbstractField
 {
-    protected $mime_types = [
+    protected array $mime_types = [
         'image' => [
             'image/gif', 'image/gi_', 'image/png', 'application/png', 'application/x-png',
             'image/jp_', 'application/jpg', 'application/x-jpg', 'image/pjpeg', 'image/jpeg'
@@ -28,7 +30,7 @@ class File extends AbstractField
         ]
     ];
 
-    protected $error_types = [
+    protected array $error_types = [
         'image' => 'File must be an image, e.g example.jpg or example.gif',
         'archive' => 'File must be an archive, e.g example.zip or example.tar',
         'document' => 'File must be a document, e.g example.doc or example.pdf',
@@ -62,9 +64,9 @@ class File extends AbstractField
         }
     }
 
-    public function getField($form_name): ?string
+    public function getField(string $form_name): ?string
     {
-        list($attribute_string, $class) = $this->_attributeString();
+        [$attribute_string, $class] = $this->_attributeString();
 
         return sprintf('<input type="file" name="%1$s" id="%2$s_%1$s" class="%3$s"/>',
             $this->getFullName(),
@@ -82,7 +84,7 @@ class File extends AbstractField
             }
         }
 
-        if ($val['error'] == \UPLOAD_ERR_OK) {
+        if ($val['error'] == UPLOAD_ERR_OK) {
             if ($val['size'] > $this->options['max_size']) {
                 $this->errors[] = sprintf('File must be less than %sMB.',
                     round($this->options['max_size'] / 1024 / 1024, 2)
@@ -120,7 +122,7 @@ class File extends AbstractField
         return true;
     }
 
-    protected function _attributeString()
+    protected function _attributeString(): array
     {
         $class = '';
 

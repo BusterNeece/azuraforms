@@ -4,10 +4,10 @@ namespace AzuraForms;
 class Error
 {
     /** @var string */
-    protected $message;
+    protected string $message;
 
     /** @var string|null */
-    protected $label;
+    protected ?string $label;
 
     /**
      * @param string $message

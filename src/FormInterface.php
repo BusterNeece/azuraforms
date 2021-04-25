@@ -1,14 +1,16 @@
 <?php
 namespace AzuraForms;
 
-interface FormInterface extends \IteratorAggregate
+use IteratorAggregate;
+
+interface FormInterface extends IteratorAggregate
 {
     /**
      * Set the name of the form
      *
      * @param string $name
      */
-    public function setName($name): void;
+    public function setName(string $name): void;
 
     /**
      * Get form name
@@ -37,18 +39,20 @@ interface FormInterface extends \IteratorAggregate
      * Retrieve an already added field.
      *
      * @param string $key
+     *
      * @return Field\FieldInterface
      * @throws Exception\FieldNotFound
      */
-    public function getField($key): Field\FieldInterface;
+    public function getField(string $key): Field\FieldInterface;
 
     /**
      * Check if a field exists
      *
      * @param string $field
+     *
      * @return boolean
      */
-    public function hasField($field): bool;
+    public function hasField(string $field): bool;
 
     /**
      * Add a field to the form instance.
@@ -58,11 +62,12 @@ interface FormInterface extends \IteratorAggregate
      * @param array $attributes
      * @param null $group
      * @param bool $overwrite
+     *
      * @return string The finalized (and group-prefixed) element name for the element.
      * @throws Exception\FieldAlreadyExists
      * @throws Exception\FieldClassNotFound
      */
-    public function addField($field_name, $type = 'text', array $attributes = [], $group = null, $overwrite = false): string;
+    public function addField(string $field_name, $type = 'text', array $attributes = [], $group = null, $overwrite = false): string;
 
     /**
      * Retrieve all of the current values set on the form.
@@ -75,9 +80,10 @@ interface FormInterface extends \IteratorAggregate
      * Return the stored data for an individual field.
      *
      * @param string $key
+     *
      * @return null|mixed
      */
-    public function getValue($key);
+    public function getValue(string $key);
 
     /**
      * Render the entire form including submit button, errors, form tags etc.
@@ -113,5 +119,5 @@ interface FormInterface extends \IteratorAggregate
      *
      * @return string
      */
-    function closeForm(): string;
+    public function closeForm(): string;
 }
