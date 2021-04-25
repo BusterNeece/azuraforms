@@ -261,6 +261,7 @@ class Form extends AbstractForm
     {
         $formAttrs = [
             'id' => $this->name,
+            'method' => $this->method,
             'action' => $this->action,
             'class' => 'form '.($this->options['class'] ?? ''),
             'accept-charset' => 'UTF-8',
