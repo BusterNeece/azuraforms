@@ -22,6 +22,6 @@ class Button extends Text
 
     public function renderView($show_empty = false): string
     {
-        return null;
+        return '';
     }
 }

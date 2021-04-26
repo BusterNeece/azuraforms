@@ -316,12 +316,12 @@ abstract class AbstractField implements FieldInterface
     /**
      * Check the currently set value for validity.
      *
-     * @param null $new_value
+     * @param mixed|null $new_value
      * @return bool
      */
     public function isValid($new_value = null): bool
     {
-        if ($new_value !== null) {
+        if (null !== $new_value) {
             $this->setValue($new_value);
         }
 

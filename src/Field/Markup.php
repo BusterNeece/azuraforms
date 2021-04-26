@@ -20,6 +20,6 @@ class Markup extends AbstractField
 
     public function renderView($show_empty = false): string
     {
-        return null;
+        return '';
     }
 }

@@ -93,16 +93,16 @@ abstract class AbstractForm implements FormInterface
      * @param string $field_name
      * @param string $type
      * @param array $attributes
-     * @param null $group
+     * @param string|null $group
      * @param bool $overwrite
      *
      * @return string The finalized (and group-prefixed) element name for the element.
      * @throws Exception\FieldAlreadyExists
      * @throws Exception\FieldClassNotFound
      */
-    public function addField(string $field_name, $type = 'text', array $attributes = [], $group = null, $overwrite = false): string
+    public function addField(string $field_name, $type = 'text', array $attributes = [], ?string $group = null, $overwrite = false): string
     {
-        $class = $this->_getFieldClass($type);
+        $class = $this->getFieldClass($type);
 
         /** @var Field\AbstractField $field */
         $field = new $class($this, $field_name, $attributes, $group);
@@ -311,7 +311,7 @@ abstract class AbstractForm implements FormInterface
      * @return string
      * @throws Exception\FieldClassNotFound
      */
-    protected function _getFieldClass(string $type): string
+    protected function getFieldClass(string $type): string
     {
         if (class_exists($type)) {
             return $type;
@@ -326,7 +326,6 @@ abstract class AbstractForm implements FormInterface
 
             if (class_exists($field_class)) {
                 return $field_class;
-                break;
             }
         }
 
