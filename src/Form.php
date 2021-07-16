@@ -8,6 +8,8 @@
 
 namespace AzuraForms;
 
+use Psr\Http\Message\ServerRequestInterface;
+
 class Form extends AbstractForm
 {
     public const CSRF_FIELD_NAME = '_csrf';
@@ -122,25 +124,23 @@ class Form extends AbstractForm
     /**
      * Validate the submitted form.
      *
-     * @param array|null $request
-     * @return bool
+     * @param ServerRequestInterface $serverRequest
+     *
+     * @return bool Whether the submitted data is valid.
      */
-    public function isValid(array $request = null): bool
+    public function isValid(ServerRequestInterface $serverRequest): bool
     {
-        if ($request === null) {
-            $request = (strtoupper($this->method) === self::METHOD_POST)
-                ? $_POST
-                : $_GET;
-        }
-
-        if (empty($request)) {
+        if ('POST' !== $serverRequest->getMethod()) {
             return false;
         }
 
-        $this->populate($request, true);
+        $parsedBody = $serverRequest->getParsedBody();
+        if (is_array($parsedBody)) {
+            $this->populate($parsedBody);
+        }
 
-        $file_data = $this->fixFilesArray($_FILES ?? array());
-        $this->populate($file_data);
+        $uploadedFiles = $serverRequest->getUploadedFiles();
+        $this->populate($uploadedFiles);
 
         // Validate individual fields using the class validator.
         $is_valid = true;
@@ -152,36 +152,6 @@ class Form extends AbstractForm
         }
 
         return $is_valid;
-    }
-
-    /**
-     * Fixes the odd indexing of multiple file uploads from the format:
-     * $_FILES['field']['key']['index']
-     *
-     * To the more standard and appropriate:
-     * $_FILES['field']['index']['key']
-     *
-     * @param array $files
-     *
-     * @return array
-     * @author Corey Ballou
-     * @link http://www.jqueryin.com
-     */
-    protected function fixFilesArray(array $files): array
-    {
-        $names = array('name' => 1, 'type' => 1, 'tmp_name' => 1, 'error' => 1, 'size' => 1);
-
-        foreach ($files as $key => $part) {
-            $key = (string) $key;
-            if (isset($names[$key]) && is_array($part)) {
-                foreach ($part as $position => $value) {
-                    $files[$position][$key] = $value;
-                }
-                unset($files[$key]);
-            }
-        }
-
-        return $files;
     }
 
     /**
@@ -251,7 +221,7 @@ class Form extends AbstractForm
 
         $formAttrsStr = [];
         foreach($formAttrs as $key => $val) {
-            $formAttrsStr[] = $key.'="' . htmlentities($val) . '"';
+            $formAttrsStr[] = $key.'="' . htmlentities($val, ENT_QUOTES | ENT_HTML5) . '"';
         }
 
         return '<form '.implode(' ', $formAttrsStr).'>';

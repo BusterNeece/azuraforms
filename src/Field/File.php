@@ -1,6 +1,8 @@
 <?php
 namespace AzuraForms\Field;
 
+use Psr\Http\Message\UploadedFileInterface;
+
 use const UPLOAD_ERR_OK;
 
 class File extends AbstractField
@@ -75,36 +77,44 @@ class File extends AbstractField
         );
     }
 
-    protected function validateValue($val): bool
+    protected function validateValue($value): bool
     {
-        if ($this->options['required']) {
-            if ($val['error'] != 0 || $val['size'] == 0) {
-                $this->errors[] = 'This field is required.';
-                return false;
-            }
+        if (null === $value && $this->options['required']) {
+            $this->errors[] = 'This field is required.';
+            return false;
         }
 
-        if ($val['error'] == UPLOAD_ERR_OK) {
-            if ($val['size'] > $this->options['max_size']) {
-                $this->errors[] = sprintf('File must be less than %sMB.',
+        if ($value instanceof UploadedFileInterface) {
+            $fileSize = $value->getSize() ?? 0;
+            $fileError = $value->getError();
+
+            if (UPLOAD_ERR_OK !== $fileError || 0 !== $fileSize) {
+                $this->errors[] = 'Error uploading file.';
+                return false;
+            }
+
+            if ($fileSize > $this->options['max_size']) {
+                $this->errors[] = sprintf(
+                    'File must be less than %sMB.',
                     round($this->options['max_size'] / 1024 / 1024, 2)
                 );
                 return false;
             }
 
-            if ($this->options['type'] == 'image') {
-                $image = getimagesize($val['tmp_name']);
+            /*
+            if ('image' === $this->options['type']) {
+                $image = getimagesize($value['tmp_name']);
                 if ($image[0] > $this->options['width'] || $image[1] > $this->options['height']) {
                     $this->errors[] = sprintf('File must contain an image no more than %s pixels wide and %s pixels tall.',
-                        $this->options['width'],
-                        $this->options['height']
+                                              $this->options['width'],
+                                              $this->options['height']
                     );
                     return false;
                 }
                 if ($image[0] < $this->options['min_width'] || $image[1] < $this->options['min_height']) {
                     $this->errors[] = sprintf('File must contain an image at least %s pixels wide and %s pixels tall.',
-                        $this->options['min_width'],
-                        $this->options['min_height']
+                                              $this->options['min_width'],
+                                              $this->options['min_height']
                     );
                     return false;
                 }
@@ -113,10 +123,11 @@ class File extends AbstractField
                     $this->errors[] = $this->error_types[$this->options['type']];
                     return false;
                 }
-            } elseif (!in_array($val['type'], $this->options['mime_types'])) {
+            } elseif (!in_array($value['type'], $this->options['mime_types'])) {
                 $this->errors[] = $this->error_types[$this->options['type']];
                 return false;
             }
+            */
         }
 
         return true;
