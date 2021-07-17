@@ -1,6 +1,7 @@
 <?php
 namespace AzuraForms\Field;
 
+use League\MimeTypeDetection\FinfoMimeTypeDetector;
 use Psr\Http\Message\UploadedFileInterface;
 
 use const UPLOAD_ERR_OK;
@@ -88,7 +89,7 @@ class File extends AbstractField
             $fileSize = $value->getSize() ?? 0;
             $fileError = $value->getError();
 
-            if (UPLOAD_ERR_OK !== $fileError || 0 !== $fileSize) {
+            if (UPLOAD_ERR_OK !== $fileError || 0 === $fileSize) {
                 $this->errors[] = 'Error uploading file.';
                 return false;
             }
@@ -101,33 +102,17 @@ class File extends AbstractField
                 return false;
             }
 
-            /*
-            if ('image' === $this->options['type']) {
-                $image = getimagesize($value['tmp_name']);
-                if ($image[0] > $this->options['width'] || $image[1] > $this->options['height']) {
-                    $this->errors[] = sprintf('File must contain an image no more than %s pixels wide and %s pixels tall.',
-                                              $this->options['width'],
-                                              $this->options['height']
-                    );
-                    return false;
-                }
-                if ($image[0] < $this->options['min_width'] || $image[1] < $this->options['min_height']) {
-                    $this->errors[] = sprintf('File must contain an image at least %s pixels wide and %s pixels tall.',
-                                              $this->options['min_width'],
-                                              $this->options['min_height']
-                    );
-                    return false;
-                }
+            if ('all' !== $this->options['type']) {
+                $mimeType = (new FinfoMimeTypeDetector())->detectMimeType(
+                    $value->getClientFilename(),
+                    stream_get_contents($value->getStream())
+                );
 
-                if (!in_array($image['mime'], $this->options['mime_types'])) {
+                if (!in_array($mimeType, $this->options['mime_types'], true)) {
                     $this->errors[] = $this->error_types[$this->options['type']];
                     return false;
                 }
-            } elseif (!in_array($value['type'], $this->options['mime_types'])) {
-                $this->errors[] = $this->error_types[$this->options['type']];
-                return false;
             }
-            */
         }
 
         return true;
@@ -143,7 +128,7 @@ class File extends AbstractField
 
         $attribute_string = '';
         foreach ($this->attributes as $attribute => $val) {
-            if ($attribute == 'class') {
+            if ($attribute === 'class') {
                 $class .= ' ' . $val;
             } else if ($val !== false) {
                 $attribute_string .= ' '.($val === true ? $attribute : "$attribute=\"$val\"");
