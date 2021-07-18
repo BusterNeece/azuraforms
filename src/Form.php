@@ -70,7 +70,7 @@ class Form extends AbstractForm
         }
 
         if (isset($options['method'])) {
-            $this->method = $options['method'];
+            $this->method = strtoupper($options['method']);
         }
 
         // Add CSRF field
