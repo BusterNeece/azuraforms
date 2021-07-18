@@ -15,10 +15,13 @@ class Recaptcha extends AbstractField
             ];
 
             $url = 'https://www.google.com/recaptcha/api/siteverify?' . http_build_query($params);
-            $response = json_decode(file_get_contents($url));
+            $jsonRaw = file_get_contents($url);
 
-            if ($response->success) {
-                return true;
+            if (!empty($jsonRaw)) {
+                $response = json_decode($jsonRaw, true);
+                if ($response['success'] ?? false) {
+                    return true;
+                }
             }
 
             return 'Could not validate captcha.';

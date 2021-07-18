@@ -104,7 +104,7 @@ class File extends AbstractField
 
             if ('all' !== $this->options['type']) {
                 $mimeType = (new FinfoMimeTypeDetector())->detectMimeType(
-                    $value->getClientFilename(),
+                    $value->getClientFilename() ?? 'noname',
                     $value->getStream()->getContents()
                 );
 

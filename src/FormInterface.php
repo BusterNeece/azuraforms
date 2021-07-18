@@ -3,6 +3,9 @@ namespace AzuraForms;
 
 use IteratorAggregate;
 
+/**
+ * @extends IteratorAggregate<Field\AbstractField>
+ */
 interface FormInterface extends IteratorAggregate
 {
     /**

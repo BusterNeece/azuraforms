@@ -11,9 +11,17 @@ abstract class BaseOptions extends AbstractField
         unset($this->attributes['escape_choices']);
     }
 
+    /**
+     * @return mixed
+     */
     abstract public function getSelectedValue();
 
-    protected function _getAttributeString($val): array
+    /**
+     * @param mixed $val
+     *
+     * @return array
+     */
+    protected function getAttributeString($val): array
     {
         $attribute_string = '';
         if (is_array($val)) {
@@ -32,12 +40,12 @@ abstract class BaseOptions extends AbstractField
         return [$val, $attribute_string];
     }
 
-    protected function _getFlattenedChoices(array $choices): array
+    protected function getFlattenedChoices(array $choices): array
     {
         $flattened = [];
         foreach($choices as $choice_key => $choice_val) {
             if (is_array($choice_val)) {
-                $flattened = array_merge($flattened, $this->_getFlattenedChoices($choice_val));
+                $flattened = array_merge($flattened, $this->getFlattenedChoices($choice_val));
             } else {
                 $flattened[$choice_key] = $choice_val;
             }
@@ -46,7 +54,13 @@ abstract class BaseOptions extends AbstractField
         return $flattened;
     }
 
-    protected function _buildOptions(array $choices, $selected = null): string
+    /**
+     * @param array $choices
+     * @param mixed $selected
+     *
+     * @return string
+     */
+    protected function buildOptions(array $choices, $selected = null): string
     {
         $field = '';
 
@@ -58,10 +72,10 @@ abstract class BaseOptions extends AbstractField
 
                 $field .= sprintf('<optgroup label="%s">%s</optgroup>',
                     $key,
-                    $this->_buildOptions($val, $selected)
+                    $this->buildOptions($val, $selected)
                 );
             } else {
-                [$choice_val, $choice_attributes] = $this->_getAttributeString($val);
+                [$choice_val, $choice_attributes] = $this->getAttributeString($val);
 
                 $is_selected = false;
                 if (null !== $selected) {

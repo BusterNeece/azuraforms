@@ -8,7 +8,7 @@ Some features of AzuraForms include:
 - Built-in escaping of user input when displayed in forms
 - Support for fieldsets
 - The ability to specify a sub-array for each field, from which data will be populated and input will be stored
-- Support for file uploads and verification of uploaded file type 
+- Support for file uploads and verification of uploaded file type
 - Automatic detection of the necessary "enctype" parameter for the form, based on whether file elements are present
 
 By default, AzuraForms' HTML output uses the standard Bootstrap 3 form template style.
@@ -64,10 +64,18 @@ return [
 ];
 ```
 
+AzuraForms is built to support the PSR-7 `ServerRequestInterface` natively.
+
+If you don't want to use a framework that supports PSR-7, you can convert from native PHP (i.e. `$_POST`) using one of
+many [PSR-17 factory libraries](https://packagist.org/providers/psr/http-factory-implementation), many of which
+implement a `fromGlobals` method to create a `ServerRequest` from global variables.
+
 Your controller code should look something like this:
 
 ```php
 <?php
+/** @var Psr\Http\Message\ServerRequestInterface $request */
+
 $form_config = include('form_config.php');
 $defaults = [
     'email' => 'foo@bar.com',
@@ -75,9 +83,9 @@ $defaults = [
 
 $form = new \AzuraForms\Form($form_config, $defaults);
 
-if (!empty($_POST) && $form->isValid($_POST)) {
+if ($form->isValid($request)) {
     $data = $form->getValues();
-    
+
     // Process your submission here...
 }
 
@@ -94,12 +102,12 @@ The configuration format used by AzuraForms is meant to be flexible, and to be s
 return [
     // Use 'groups' to denote fieldsets
     'groups' => [
-        
+
         'fieldset_name' => [
             'legend' => 'My Fieldset',
             'description' => 'The description of the fieldset.',
             'elements' => [
-                
+
                 // The key is the name of the element
                 'field_foo' => [
                     'text', // The first item is the field type
@@ -107,22 +115,22 @@ return [
                         // The second item contains configuration options and attributes
                         'label' => 'Foo',
                         'required' => true,
-                        
+
                         // Any attributes that aren't configuration options will automatically
                         // be applied to the HTML element when rendered.
                         'class' => 'text-danger',
                         'autocomplete' => 'off',
                     ],
                 ],
-                
+
             ],
-        ],   
-        
+        ],
+
     ],
-    
+
     // You can also list elements directly, without any fieldset
     'elements' => [
-        
+
         'field_bar' => [
             'field_type',
             [
@@ -130,7 +138,7 @@ return [
                 'required' => true,
             ],
         ],
-        
+
     ]
 ];
 ```

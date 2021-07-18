@@ -427,6 +427,6 @@ abstract class AbstractField implements FieldInterface
      */
     protected function slugify(string $text, $replacement = '-'): string
     {
-        return strtolower(trim(preg_replace('/\W+/', $replacement, $text), '-'));
+        return strtolower(trim(preg_replace('/\W+/', $replacement, $text) ?? '', '-'));
     }
 }

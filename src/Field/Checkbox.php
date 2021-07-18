@@ -7,7 +7,7 @@ class Checkbox extends MultipleOptions
     {
         $field = '';
         foreach ($this->options['choices'] as $key => $val) {
-            [$choice_val, $choice_attributes] = $this->_getAttributeString($val);
+            [$choice_val, $choice_attributes] = $this->getAttributeString($val);
             $field .= sprintf('<input type="checkbox" name="%1$s[]" id="%6$s_%3$s" value="%2$s" %4$s />' .
                 '<label for="%6$s_%3$s">%5$s</label>',
                 $this->getFullName(),

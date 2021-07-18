@@ -10,7 +10,7 @@ abstract class Options extends BaseOptions
         $this->validators[] = function ($value) {
             if ($this->options['required'] || !empty($value)) {
                 // Use array_keys to use the looser "in_array" check.
-                $choice_keys = array_keys($this->_getFlattenedChoices($this->options['choices']));
+                $choice_keys = array_keys($this->getFlattenedChoices($this->options['choices']));
                 if (!in_array($value, $choice_keys)) {
                     return 'Choice is not one of the available options.';
                 }
@@ -27,7 +27,7 @@ abstract class Options extends BaseOptions
 
     public function getSelectedValue()
     {
-        $flattened_choices = $this->_getFlattenedChoices($this->options['choices']);
+        $flattened_choices = $this->getFlattenedChoices($this->options['choices']);
         return $flattened_choices[$this->value] ?? null;
     }
 

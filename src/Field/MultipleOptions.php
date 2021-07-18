@@ -33,7 +33,7 @@ abstract class MultipleOptions extends BaseOptions
     public function getSelectedValue(): array
     {
         $selected = [];
-        $choices = $this->_getFlattenedChoices($this->options['choices']);
+        $choices = $this->getFlattenedChoices($this->options['choices']);
 
         if (is_array($this->value)) {
             foreach($this->value as $selected_key) {

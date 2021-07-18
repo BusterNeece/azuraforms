@@ -59,6 +59,9 @@ class Toggle extends BaseOptions
         return [$attribute_string, $class];
     }
 
+    /**
+     * @return mixed
+     */
     public function getSelectedValue()
     {
         return $this->getValue();
