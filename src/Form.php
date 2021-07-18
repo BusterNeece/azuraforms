@@ -130,7 +130,7 @@ class Form extends AbstractForm
      */
     public function isValid(ServerRequestInterface $serverRequest): bool
     {
-        if ('POST' !== $serverRequest->getMethod()) {
+        if ($this->method !== $serverRequest->getMethod()) {
             return false;
         }
 
@@ -221,7 +221,7 @@ class Form extends AbstractForm
 
         $formAttrsStr = [];
         foreach($formAttrs as $key => $val) {
-            $formAttrsStr[] = $key.'="' . htmlentities($val, ENT_QUOTES | ENT_HTML5) . '"';
+            $formAttrsStr[] = $key.'="' . htmlentities($val, ENT_QUOTES) . '"';
         }
 
         return '<form '.implode(' ', $formAttrsStr).'>';
