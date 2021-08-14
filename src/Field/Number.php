@@ -19,13 +19,16 @@ class Number extends Text
         };
 
         $this->filters[] = function($value) {
-            $step = (string)($this->attributes['step'] ?? 1);
+            if (strpos($value, '.') === false) {
+                return (int)$value;
+            }
 
-            $decimals = ((int)$step == $step)
+            $step = (string)($this->attributes['step'] ?? 1);
+            $decimals = (strpos($step, '.') === false)
                 ? 0
                 : strlen($step) - strrpos($step, '.') - 1;
 
-            return round($value, $decimals);
+            return round((float)$value, $decimals);
         };
     }
 }
