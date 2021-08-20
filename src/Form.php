@@ -136,7 +136,7 @@ class Form extends AbstractForm
 
         $parsedBody = $serverRequest->getParsedBody();
         if (is_array($parsedBody)) {
-            $this->populate($parsedBody);
+            $this->populate($parsedBody, true);
         }
 
         $uploadedFiles = $serverRequest->getUploadedFiles();
