@@ -10,3 +10,4 @@ app/models/Proxy/*.php
 # Composer-generated content
 /vendor/
 composer.lock
+/.composer

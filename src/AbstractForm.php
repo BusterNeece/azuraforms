@@ -122,9 +122,9 @@ abstract class AbstractForm implements FormInterface
     }
 
     /**
-     * @return ArrayIterator|Traversable
+     * @return Traversable
      */
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return new ArrayIterator($this->fields);
     }

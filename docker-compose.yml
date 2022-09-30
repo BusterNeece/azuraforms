@@ -1,10 +1,8 @@
 services:
   cli:
-    image: ghcr.io/azuracast/testing:latest
+    image: busterneece/azuraforms:latest
+    build:
+      context: .
     volumes:
       - ./:/app
-      - composer_data:/tmp
     command: composer test
-
-volumes:
-  composer_data: {}
